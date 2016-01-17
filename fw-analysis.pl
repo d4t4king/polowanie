@@ -200,8 +200,8 @@ foreach my $s ( sort { $srcs{$b} <=> $srcs{$a} } keys %srcs ) {
 	}
 	my $cc = $gip->country_code_by_addr($s);
 	if ((!defined($cc)) || ($cc eq "")) { $cc = 'XX'; }
-	if ($nodns) { print "[**] $s => $srcs{$s} ($cc) \n"; }
-	else { print "[**] $s => $name => $srcs{$s} ($cc) \n"; }
+	if ($nodns) { printf "[**] %-15s => %-5d (%2s) \n", $s, $srcs{$s}, $cc; }
+	else { printf "[**] %-15s => %-48s => %-5d (%2s) \n", $s, $name, $srcs{$s}, $cc; }
 	$i++;
 	last if ( $i >= $_depth );
 }
@@ -228,8 +228,8 @@ foreach my $d ( sort { $dests{$b} <=> $dests{$a} } keys %dests ) {
 	}
 	my $cc = $gip->country_code_by_addr($d);
 	if ((!defined($cc)) || ($cc eq "")) { $cc = 'XX'; }
-	if ($nodns) { print "[**] $d => $dests{$d} ($cc) \n"; }
-	else { print "[**] $d => $name => $dests{$d} ($cc) \n"; }
+	if ($nodns) { printf "[**] %-15s => %-5d (%2s) \n", $d, $dests{$d}, $cc; }
+	else { printf "[**] %-15s => %-48s => %-5d (%2s) \n", $d, $name, $dests{$d}, $cc; }
 	$i++;
 	last if ( $i >= $_depth );
 }
@@ -296,7 +296,7 @@ if ($nocolor) {
 	print colored("[**] ======================\n", "cyan");
 }
 foreach my $p ( sort { $packets{$b} <=> $packets{$a} } keys %packets ) {
-	print "[**] $p => $packets{$p}\n";
+	printf "[**] %-48s => %-9d \n", $p, $packets{$p};
 	$i++;
 	last if ( $i >= $_depth );
 }
