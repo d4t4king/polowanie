@@ -22,8 +22,10 @@ my $_depth = "10";
 
 
 my ($help, $depth, $nodns, $nocolor, $srcip, $dstip, $html);
+our $verbose = 0;
 GetOptions(
 	'h|help'		=>	\$help,
+	'v|verbose+'	=>	\$verbose,
 	'd|depth=s'		=>	\$depth,
 	'n|no-dns'		=>	\$nodns,
 	'nc|no-color'	=>	\$nocolor,
@@ -54,11 +56,11 @@ my $settings;
 if (-e "/var/smoothwall/dhcp/settings-green" && !-z "/var/smoothwall/dhcp/settings-green") {
 	$settings = &get_net_and_dhcp_info();
 } else {
-	print "DHCP settings file not found.  Is this a smoothwall system?\n";
+	print STDERR colored("[!!] DHCP settings file not found.  Is this a smoothwall system?\n", "bold yellow");
 	my $ans = readline();
 	chomp($ans);
 	if ($ans =~ /[Yy](?:es)?/) {
-		die "Unable to locate valid DHCP settings file.  Verify location and try again.\n";
+		die colored("[EE] Unable to locate valid DHCP settings file.  Verify location and try again.\n", "bold red");
 	} else {
 		# get settings from ipconfig??
 	}
@@ -66,12 +68,12 @@ if (-e "/var/smoothwall/dhcp/settings-green" && !-z "/var/smoothwall/dhcp/settin
 
 my @lines;
 # get the lines of packets dropped by the FW
-open FILE, "</var/log/messages" or die "Couldn't open messages file: $! \n";
+open FILE, "</var/log/messages" or die colored("[EE] Couldn't open messages file: $! \n", "bold red");
 while (my $line = <FILE>) {
 	chomp($line);
 	if ($line =~ /kernel:/) { push(@lines, $line); }
 }
-close FILE or die "Couldn't close messages file: $! \n";
+close FILE or die colored("[EE] Couldn't close messages file: $! \n", "bold red");
 
 my $gip = Geo::IP::PurePerl->open('/usr/share/GeoIP/GeoIP.dat', GEOIP_MEMORY_CACHE);
 
@@ -122,66 +124,66 @@ foreach my $line (@lines) {
 		if ((!defined($country)) || ($country eq "")) { $country = 'XX'; }
 		$src_countries{$country}++;
 	} else {
-		open UM, ">>/tmp/unmatched-src.$$.txt" or die "Couldn't open unmatched dump file for writing: $! \n";
+		open UM, ">>/tmp/unmatched-src.$$.txt" or die colored("[EE] Couldn't open unmatched dump file for writing: $! \n", "bold red");
 		print UM "$line\n";
-		close UM or die "Couldn't close unmatched dump file: $! \n";
+		close UM or die colored("[EE] Couldn't close unmatched dump file: $! \n", "bold red");
 	}
 	if ((defined($dst)) && ($dst ne '')) {
 		$country = $gip->country_name_by_addr($dst);
 		if ((!defined($country)) || ($country eq "")) { $country = 'XX'; }
 		$dest_countries{$country}++;
 	} else {
-		open UM, ">>/tmp/unmatched-dst.$$.txt" or die "Couldn't open unmatched dump file for writing: $! \n";
+		open UM, ">>/tmp/unmatched-dst.$$.txt" or die colored("[EE] Couldn't open unmatched dump file for writing: $! \n", "bold red");
 		print UM "$line\n";
-		close UM or die "Couldn't close unmatched dump file: $! \n";
+		close UM or die colored("[EE] Couldn't close unmatched dump file: $! \n", "bold red");
 	}
 }
 
 my $i = 0;
 
-print "=" x 72;
+print "[**] "; print "=" x 72;
 print "\n";
 if ($nocolor) {
-	print "Number of packets per interface:\n";
-	print "================================\n";
+	print "[**] Number of packets per interface:\n";
+	print "[**] ================================\n";
 } else {
-	print colored("Number of packets per interface:\n", "cyan");
-	print colored("================================\n", "cyan");
+	print colored("[**] Number of packets per interface:\n", "cyan");
+	print colored("[**] ================================\n", "cyan");
 }
 foreach my $p ( sort keys %iface_pkts ) {
 	#print "$p => ". nslookup($p) . " ==> $iface_pkts{$p}\n";
 	if ($nocolor) {
-		print "$p";
+		print "[**] $p";
 	} else {
-		print colored("$p", "$settings->{$p}");
+		print colored("[**] $p", "$settings->{$p}");
 	}
 	print "\t=>\t$iface_pkts{$p}\n";
 }
 
 if ($nocolor) {
-	print "\nNumber of packets per filter:\n";
-	print "=============================\n";
+	print "\n[**] Number of packets per filter:\n";
+	print "[**] =============================\n";
 } else {
-	print colored("\nNumber of packets per filter:\n", "cyan");
-	print colored("=============================\n", "cyan");
+	print colored("\n[**] Number of packets per filter:\n", "cyan");
+	print colored("[**] =============================\n", "cyan");
 }
 foreach my $f ( sort { $filters{$b} <=> $filters{$a} } keys %filters ) {
 	if (length($f) <= 7) {
-		print "$f\t\t$filters{$f}\n";
+		print "[**] $f\t\t$filters{$f}\n";
 	} else {
-		print "$f:\t$filters{$f}\n";
+		print "[**] $f:\t$filters{$f}\n";
 	}
 }
 
-print "\nNumber of unique source IPs: ";
+print "\n[**] Number of unique source IPs: ";
 if ($nocolor) {	print scalar(keys(%srcs)) . "\n"; }
 else { print colored(scalar(keys(%srcs)) . "\n", "green"); }
 if ($nocolor) {
-	print "Top $_depth sources:\n";
-	print "===============\n";
+	print "[**] Top $_depth sources:\n";
+	print "[**] ===============\n";
 } else {
-	print colored("Top $_depth sources:\n", "cyan");
-	print colored("===============\n", "cyan");
+	print colored("[**] Top $_depth sources:\n", "cyan");
+	print colored("[**] ===============\n", "cyan");
 }
 foreach my $s ( sort { $srcs{$b} <=> $srcs{$a} } keys %srcs ) {
 	my $name;
@@ -198,22 +200,22 @@ foreach my $s ( sort { $srcs{$b} <=> $srcs{$a} } keys %srcs ) {
 	}
 	my $cc = $gip->country_code_by_addr($s);
 	if ((!defined($cc)) || ($cc eq "")) { $cc = 'XX'; }
-	if ($nodns) { print "$s => $srcs{$s} ($cc) \n"; }
-	else { print "$s => $name => $srcs{$s} ($cc) \n"; }
+	if ($nodns) { print "[**] $s => $srcs{$s} ($cc) \n"; }
+	else { print "[**] $s => $name => $srcs{$s} ($cc) \n"; }
 	$i++;
 	last if ( $i >= $_depth );
 }
 
 $i = 0;
-print "\nNumber of unique destination IPs: ";
+print "\n[**] Number of unique destination IPs: ";
 if ($nocolor) { print scalar(keys(%dests)) . "\n"; }
 else { print colored(scalar(keys(%dests)) . "\n", "green"); }
 if ($nocolor) {
-	print "Top $_depth Destinations:\n";
-	print "====================\n";
+	print "[**] Top $_depth Destinations:\n";
+	print "[**] ====================\n";
 } else {
-	print colored("Top $_depth Destinations:\n", "cyan");
-	print colored("====================\n", "cyan");
+	print colored("[**] Top $_depth Destinations:\n", "cyan");
+	print colored("[**] ====================\n", "cyan");
 }
 foreach my $d ( sort { $dests{$b} <=> $dests{$a} } keys %dests ) {
 	my $name;
@@ -226,96 +228,75 @@ foreach my $d ( sort { $dests{$b} <=> $dests{$a} } keys %dests ) {
 	}
 	my $cc = $gip->country_code_by_addr($d);
 	if ((!defined($cc)) || ($cc eq "")) { $cc = 'XX'; }
-	if ($nodns) { print "$d => $dests{$d} ($cc) \n"; }
-	else { print "$d => $name => $dests{$d} ($cc) \n"; }
+	if ($nodns) { print "[**] $d => $dests{$d} ($cc) \n"; }
+	else { print "[**] $d => $name => $dests{$d} ($cc) \n"; }
 	$i++;
 	last if ( $i >= $_depth );
 }
 
 if ($nocolor) {
-	print "\nWatched protocols:\n";
-	print "====================\n";
+	print "\n[**] Watched protocols:\n";
+	print "[**] ====================\n";
 } else {
-	print colored("\nWatched protocols:\n", "cyan");
-	print colored("====================\n", "cyan");
+	print colored("\n[**] Watched protocols:\n", "cyan");
+	print colored("[**] ====================\n", "cyan");
 }
 foreach my $k ( sort keys %watched ) {
-	print "$k\t=>\t$watched{$k}\n";
+	print "[**] $k\t=>\t$watched{$k}\n";
 }
 
 $i = 0;
 if ($nocolor) {
-	print "\nTop $_depth Proto/Port's:\n";
-	print "======================\n";
+	print "\n[**] Top $_depth Proto/Port's:\n";
+	print "[**] ======================\n";
 } else {
-	print colored("\nTop $_depth Proto/Port's:\n", "cyan");
-	print colored("======================\n", "cyan");
+	print colored("\n[**] Top $_depth Proto/Port's:\n", "cyan");
+	print colored("[**] ======================\n", "cyan");
 }
 foreach my $k ( sort { $protoport{$b} <=> $protoport{$a} } keys %protoport ) {
-	my $tabs = "";
-	if (length($k) >= 8) {
-		$tabs = "\t";
-	} else {
-		$tabs = "\t\t";
-	}
-	print "$k$tabs=>\t$protoport{$k}\n";
+	printf "[**] %-10s => %-9d \n", $k, $protoport{$k};
 	$i++;
 	last if ( $i >= $_depth );
 }
 
 $i = 0;
 if ($nocolor) {
-	print "\nTop $_depth Source Countries:\n";
-	print "==========================\n";
+	print "\n[**] Top $_depth Source Countries:\n";
+	print "[**] ==========================\n";
 } else {
-	print colored("\nTop $_depth Source Countries:\n", "cyan");
-	print colored("==========================\n", "cyan");
+	print colored("\n[**] Top $_depth Source Countries:\n", "cyan");
+	print colored("[**] ==========================\n", "cyan");
 }
 foreach my $sc ( sort { $src_countries{$b} <=> $src_countries{$a} } keys %src_countries ) {
-	my $tabs = "";
-	if (length($sc) >= 17) {
-		$tabs = "\t";
-	} elsif ((length($sc) < 17) && (length($sc) > 7)) {
-		$tabs = "\t\t";
-	} elsif (length($sc) <= 7) {
-		$tabs = "\t\t\t";
-	}
-
-	print "$sc$tabs=>\t$src_countries{$sc}\n";
+	printf "[**] %-20s => %-9d \n", $sc, $src_countries{$sc};
 	$i++;
 	last if ( $i >= $_depth );
 }
 
 $i = 0;
 if ($nocolor) {
-	print "\nTop $_depth Destination Countries:\n";
-	print "===============================\n";
+	print "\n[**] Top $_depth Destination Countries:\n";
+	print "[**] ===============================\n";
 } else {
-	print colored("\nTop $_depth Destination Countries:\n", "cyan");
-	print colored("===============================\n", "cyan");
+	print colored("\n[**] Top $_depth Destination Countries:\n", "cyan");
+	print colored("[**] ===============================\n", "cyan");
 }
 foreach my $dc ( sort { $dest_countries{$b} <=> $dest_countries{$a} } keys %dest_countries ) {
-	my $tabs = "";
-	if (length($dc) >= 9) {
-		$tabs = "\t";
-	} else {
-		$tabs = "\t\t";
-	}
-	print "$dc$tabs=>\t$dest_countries{$dc}\n";
+	printf "[**] %-20s => %-9d \n", $dc, $dest_countries{$dc};
 	$i++;
 	last if ( $i >= $_depth );
 }
 
 $i = 0;
 if ($nocolor) {
-	print "\nTop $_depth Packets:\n";
-	print "======================\n";
+	print "\n[**] Top $_depth Packets:\n";
+	print "[**] ======================\n";
 } else {
-	print colored("\nTop $_depth Packets:\n", "cyan");
-	print colored("======================\n", "cyan");
+	print colored("\n[**] Top $_depth Packets:\n", "cyan");
+	print colored("[**] ======================\n", "cyan");
 }
 foreach my $p ( sort { $packets{$b} <=> $packets{$a} } keys %packets ) {
-	print "$p => $packets{$p}\n";
+	print "[**] $p => $packets{$p}\n";
 	$i++;
 	last if ( $i >= $_depth );
 }
@@ -343,8 +324,8 @@ sub check_geoip_db() {
 		#print Dumper(@stats);
 		my $time = time();
 		if (($time - $stats[10]) >= 2592000) {
-			if ($nocolor) { print "GeoIP.dat file is over 30 days old.  Consider updating.\n"; } 
-			else { print colored("GeoIP.dat file is over 30 days old.  Consider updating.\n", "bright_yellow"); }
+			if ($nocolor) { print "[!!] GeoIP.dat file is over 30 days old.  Consider updating.\n"; } 
+			else { print colored("[!!] GeoIP.dat file is over 30 days old.  Consider updating.\n", "bold yellow"); }
 			print "Would you like to attempt to update the GeoIP database now?\n";
 			my $ans = readline();
 			chomp($ans);
@@ -358,16 +339,20 @@ sub check_geoip_db() {
 				my $status = gunzip $input => $output
 					or die "gunzip failed: $GunzipError\n";
 			} else {
-				if ($nocolor) { print "Good.  Continuing without updating.\n"; }
-				else { print colored("Good.  Continuing without updating.\n", "yellow"); }
+				if ($verbose) {
+					if ($nocolor) { print "[**] Good.  Continuing without updating.\n"; }
+					else { print colored("[**] Good.  Continuing without updating.\n", "bold green"); }
+				}
 			}
 		} else {
-			if ($nocolor) { print "GeoIP.dat OK.\n"; }
-			else { print colored("GeoIP.dat OK.\n", "green"); }
+			if ($verbose) {
+				if ($nocolor) { print "[**] GeoIP.dat OK.\n"; }
+				else { print colored("[**] GeoIP.dat OK.\n", "green"); }
+			}
 		}
 	} else {
-		if ($nocolor) {	print "Couldn't find GeoIP.dat.\n"; }
-		else { print colored("Couldn't find GeoIP.dat.\n", "red"); }
+		if ($nocolor) {	print STDERR "[EE] Couldn't find GeoIP.dat.\n"; }
+		else { print colored("[EE] Couldn't find GeoIP.dat.\n", "bold red"); }
 	}
 }
 
@@ -378,16 +363,18 @@ sub check_perl_mods() {
 	foreach my $mod ( @mods ) {
 		my $result = `/usr/bin/perl -m$mod -e ";" 2>&1`;
 		if ($result =~ /^Can't locate /) {
-			if ($nocolor) { print "Couldn't find $mod. Please run the included script: install-mods.sh.\n" }
-			else { print colored("Couldn't find $mod. Please run the included script: install-mods.sh.\n", "red"); }
+			if ($nocolor) { print STDERR "[EE] Couldn't find $mod. Please run the included script: install-mods.sh.\n" }
+			else { print STDERR colored("[EE] Couldn't find $mod. Please run the included script: install-mods.sh.\n", "bold red"); }
 			$status = 1
 		} elsif ((! defined($result)) || $result eq "") {
-			if ($nocolor) { print "$mod OK.\n" }
-			else { print colored("$mod OK.\n", "green"); }
+			if ($verbose) {
+				if ($nocolor) { print "[**] $mod OK.\n" }
+				else { print colored("[**] $mod OK.\n", "green"); }
+			}
 			$status = 1
 		} else {
-			if ($nocolor) { print "$result\n"; }
-			else { print colored("$result\n", "red"); }
+			if ($nocolor) { print "[**] $result\n"; }
+			else { print colored("[**] $result\n", "red"); }
 			$status = 0
 		}
 		if ($status == 0) { return $status; }
@@ -401,7 +388,7 @@ sub get_net_and_dhcp_info() {
 	my $leases = "/usr/etc/dhcpd.leases";
 	if ( -f "/var/smoothwall/dhcp/enable" ) { $ndsettings{'dhcp_enabled'} = 1; }
 
-	open ETH, "</var/smoothwall/ethernet/settings" or die "Couldn't open ethernet settings file: $! \n";
+	open ETH, "</var/smoothwall/ethernet/settings" or die colored("[EE] Couldn't open ethernet settings file: $! \n", "bold red");
 	while (my $line = <ETH>) {
 		chomp($line);
 		if ($line =~ /GREEN_DEV=(.*)/) { $ndsettings{$1} = "green"; }
@@ -413,9 +400,9 @@ sub get_net_and_dhcp_info() {
 		if ($line =~ /PURPLE_BROADCAST=(.*)/) { $ndsettings{'purple net bdcst'} = $1; }
 		if ($line =~ /ORANGE_BROADCAST=(.*)/) { $ndsettings{'orange net bdcst'} = $1; }
 	}
-	close ETH or die "Couldn't close ethernet settings file: $! \n";
+	close ETH or die colored("[EE] Couldn't close ethernet settings file: $! \n", "bold red");
 
-	open LEAS, "</usr/etc/dhcpd.leases" or die "Couldn't open DHCP leases file: $! \n";
+	open LEAS, "</usr/etc/dhcpd.leases" or die colored("[EE] Couldn't open DHCP leases file: $! \n", "bold red");
 	my $lease_data = do { local $/; <LEAS> };
 	close LEAS;
 
