@@ -9,12 +9,14 @@ use Term::ANSIColor;
 use Data::Dumper;
 use Getopt::Long;
 
-my ($help, $verbose, $depth, $threshold, $show_tlds, $whitelist);
+my ($help, $verbose, $depth, $threshold, $show_tlds, $whitelist, $top, $bottom);
 $depth = 10;
-$threshold = 10;
+$threshold = 0;
 $verbose = 0;
 $help = 0;
 $show_tlds = 0;
+$top = 0;
+$bottom = 1;		# defaults to bottom=true
 GetOptions(
 	"h|?|help"			=>	\$help,
 	"v|verbose+"		=>	\$verbose,
@@ -22,9 +24,12 @@ GetOptions(
 	"t|threshold=s"		=>	\$threshold,
 	"show-tlds"			=>	\$show_tlds,
 	"w|whitelist=s"		=>	\$whitelist,
+	"top"				=>	\$top,
+	"bottom"			=>	\$bottom,
 );
 
 my (%tlds, %ttdomains, %domains, %whitelist, %xfers);
+my (@sorted);
 
 if ($help) { &show_help(); }
 
@@ -129,7 +134,12 @@ if (scalar(keys(%xfers)) > 0) {
 
 if ($show_tlds) {
 	print colored("[**] Found the following unique top-level domains: \n", "bold cyan");
-	foreach my $t ( sort { $tlds{$a} <=> $tlds{$b} } keys %tlds ) {
+	if ($top) {
+		@sorted = sort { $tlds{$b} <=> $tlds{$a} } keys %tlds;
+	} else {
+		@sorted = sort { $tlds{$a} <=> $tlds{$b} } keys %tlds;
+	}
+	foreach my $t ( @sorted ) {
 		if ($threshold) { next unless ($tlds{$t} <= $threshold); }
 		printf "[**] %32s %-9d \n", $t, $tlds{$t};
 		last if (($depth) && ($i == $depth));
@@ -138,8 +148,13 @@ if ($show_tlds) {
 }
 
 $i = 0;
+if ($top) {
+	@sorted = sort { $ttdomains{$b} <=> $ttdomains{$a} } keys %ttdomains;
+} else {
+	@sorted = sort { $ttdomains{$a} <=> $ttdomains{$b} } keys %ttdomains;
+}
 print colored("[**] Found the following unique primary domains: \n", "bold cyan");
-foreach my $t ( sort { $ttdomains{$a} <=> $ttdomains{$b} } keys %ttdomains ) {
+foreach my $t ( @sorted ) {
 	if ($threshold) { next unless ($ttdomains{$t} <= $threshold); }
 	if ($whitelist) { next if (exists($whitelist{$t})); }
 	printf "[**] %32s %-9d \n", $t, $ttdomains{$t};
@@ -158,13 +173,13 @@ $0 [-h|--help] [-v|--verbose] [-d|--depth] <integer> [-t|--threshold] <integer> 
 Where:
 
 -h|--help			Displays this helpful message.
--v|--verbose		Shows extra output messages.  Specify more times to increase verbosity.
+-v|--verbose			Shows extra output messages.  Specify more times to increase verbosity.
 -d|--depth			Specify the Top/Bottom number of results.
--t|--threshold		Specify all results above/below the specified repetition count.
--w|--whitelist		Specifies a list of accepted domains to ignore.  File should be
-					one entry per line.
+-t|--threshold			Specify all results above/below the specified repetition count.
+-w|--whitelist			Specifies a list of accepted domains to ignore.  File should be
+				one entry per line.
 --show-tlds			Show TLDs within specified/default depth/threshold, in addition to the
-					primary domains found.
+				primary domains found.
 
 EoS
 

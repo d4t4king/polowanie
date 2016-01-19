@@ -39,7 +39,7 @@ if ((defined($ARGV[0])) && ($ARGV[0] ne "")) {
 					/; print "\n";
 				}
 				if ($params =~ /[\&\?]/) { 
-					print colored("[**] Parsable parameters in query section! \n", "green"); 
+					if (($verbose) && ($verbose > 1)) { print colored("[**] Parsable parameters in query section! \n", "green"); }
 					my ($ac, $ps) = split(/\?/, $params);
 					if ($verbose) {
 						print qq/
@@ -47,17 +47,42 @@ if ((defined($ARGV[0])) && ($ARGV[0] ne "")) {
 [++]	PARAMS:			$ps
 						/; print "\n";
 					}
-					my @params = split(/\&/, $ps);
-					if (($verbose) && ($verbose > 1)) { print Dumper(@params); }
-					foreach my $kp ( sort @params ) {
-						my ($key, $val) = split(/=/, $kp);
-						if (((defined($val)) && ($val ne '')) && ($val =~ /([a-zA-Z0-9]+(?:\%3D(?:\%3D)?))$/)) {
-							print "[**] Value appears to contain base64. \n";
-							$val =~ s/\%3D/=/g;
-							my $decoded = decode_base64($val);
-							print "[%%] $key == $decoded \n";
-						} 
+					if ((defined($ps)) && ($ps ne '')) {
+						my @params = split(/\&/, $ps);
+						if (($verbose) && ($verbose > 1)) { print Dumper(@params); }
+						foreach my $kp ( sort @params ) {
+							my ($key, $val) = split(/=/, $kp);
+							if (((defined($val)) && ($val ne '')) && ($val =~ /([a-zA-Z0-9]+(?:\%3D|=(?:\%3D|=)?))$/)) {
+								print "[**] Value appears to contain base64. \n";
+								$val =~ s/\%3D/=/g;
+								my $decoded = decode_base64($val);
+								if ($decoded =~ /[^a-zA-Z0-9.-_]+/) {
+									my @chars = split(//, $decoded);
+									print "[%%] $key ==> ";
+									foreach my $chr ( @chars ) { printf("\\x%x", ord($chr)); }
+									print " \n";
+								} else {
+									print "[%%] $key ==> $decoded \n";
+								}
+							} 
+						}
+					} else {
+						warn colored("[!!] The params section was empty! \n", "bold yellow");
 					}
+				} elsif ($params =~ /.*(?:%3D|=(?:%3D|=)?)$/) {
+					print "[**] Value appears to contain base64. \n";
+					$params =~ s/\%3D/=/g;
+					my $decoded = decode_base64($params);
+					if ($decoded =~ /[^a-zA-Z0-9.-_]+/) {
+						my @chars = split(//, $decoded);
+						print "[%%] ";
+						foreach my $chr ( @chars ) { printf("\\x%X", ord($chr)); }
+						print " \n";
+					} else {
+						print "[%%] $decoded \n";
+					}
+				} else {
+					print colored("[##] $params \n", "bold blue");
 				}
 			} else {
 				given ($url) {
