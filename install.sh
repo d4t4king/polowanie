@@ -130,8 +130,30 @@ if [ ! $? == 0 ]; then
 	make && make install
 fi
 cd
+# The following are requirements or sub-requirements for Net::Whois::Parser
+perl -mNet::Whois::Parser -e ';' > /dev/null 2>&1
+if [ ! $? == 0 ]; then
+	wget http://search.cpan.org/CPAN/authors/id/E/EX/EXODIST/Test-Simple-1.001014.tar.gz
+	wget http://search.cpan.org/CPAN/authors/id/A/AD/ADAMK/Test-NoWarnings-1.04.tar.gz
+	wget http://search.cpan.org/CPAN/authors/id/C/CF/CFAERBER/Net-IDN-Encode-2.300.tar.gz
+	wget http://search.cpan.org/CPAN/authors/id/P/PE/PEVANS/Socket-2.021.tar.gz
+	wget http://search.cpan.org/CPAN/authors/id/P/PE/PEVANS/IO-Socket-IP-0.37.tar.gz
+	wget http://search.cpan.org/CPAN/authors/id/S/SA/SALVA/Regexp-IPv6-0.03.tar.gz
+	wget http://search.cpan.org/CPAN/authors/id/M/MA/MALLEN/Test-RequiresInternet-0.05.tar.gz
+	wget http://search.cpan.org/CPAN/authors/id/N/NA/NALOBIN/Net-Whois-Raw-2.91.tar.gz
+	wget http://search.cpan.org/CPAN/authors/id/I/IV/IVSOKOLOV/Net-Whois-Parser-0.05.tar.gz
+	for TB in Test-Simple-1.001014 Test-NoWarnings-1.04 Net-IDN-Encode-2.300 Socket-2.021 IO-Socket-IP-0.37 Regexp-IPv6-0.03 Test-RequiresInternet-0.05 Net-Whois-Raw-2.91 Net-Whois-Parser-0.05;
+	do
+		tar xf ${TB}.tar.gz
+		cd ${TB}
+		perl Makefile.PL
+		make && make install
+		cd ..
+	done
+fi
+cd
 
-rm -rf Digest* Net* Geo-IP* Sub* Carp* Bit* Date* Config* Mail* MIME*
+rm -rf Digest* Net* Geo-IP* Sub* Carp* Bit* Date* Config* Mail* MIME* IO* Socket* Regexp* Test*
 
 mkdir -p /var/smoothwall/mods/polowanie
 touch /var/smoothwall/mods/polowanie/installed

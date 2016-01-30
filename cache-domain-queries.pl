@@ -6,7 +6,7 @@ use Term::ANSIColor;
 use Data::Dumper;
 use Getopt::Long;
 
-my ($help, $verbose, $depth, $threshold, $show_tlds, $whitelist, $show_mime_types, $top, $bottom);
+my ($help, $verbose, $depth, $threshold, $show_tlds, $whitelist, $show_mime_types, $top, $bottom, $dump);
 $depth = 10;
 $threshold = 0;
 $verbose = 0;
@@ -25,6 +25,7 @@ GetOptions(
 	"w|whitelist=s"		=>	\$whitelist,
 	"top"				=>	\$top,
 	"bottom"			=>	\$bottom,
+	"dump=s"			=>	\$dump,
 );
 
 my (%tlds, %ttdomains, %domains, %mime_types, %whitelist);
@@ -89,6 +90,17 @@ if ((defined($ARGV[0])) && ($ARGV[0] ne "")) {
 	die colored("[EE] You need to specify a cache log to parse as an argument! \n", "bold red");
 }
 
+if ($dump) {
+	open OUT, ">$dump" or die colored("[EE] Couldn't open dump output file: $! \n", "bold red");
+	foreach my $d ( keys %ttdomains ) {
+		next if (($whitelist) && (exists($whitelist{$d})));
+		print OUT "$d\n";
+	}
+	close OUT or die colored("[EE] Couldn't close dump output file: $! \n", "bold red");
+	exit 0;
+}
+				
+	
 my $i = 0;
 if ($show_tlds) {
 	print colored("[**] Found the following unique top-level domains: \n", "bold cyan");
