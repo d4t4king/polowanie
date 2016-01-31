@@ -67,7 +67,7 @@ if ((defined($ARGV[0])) && ($ARGV[0] ne "")) {
 					# ignore for now
 					next;
 				}
-				when ($line =~ / query\[(?:NS|SOA|DNSKEY|type=43)\] /) {
+				when ($line =~ / query\[(?:NS|SOA|DNSKEY|type=(?:43|0)|SRV|ANY)\] /) {
 					# ignore for now
 					next;
 				}
