@@ -42,31 +42,36 @@ our %registrars = (
 	"gandi sas"												=>	1,
 	"cloudflare, inc."										=>	1,
 	"hailclub sas"											=>	.95,
-	"dnc holdings, inc."									=>	1,
-	"gkg.net, inc."											=>	1,
+	"dnc holdings, inc."									=>	.9,
+	"gkg.net, inc."											=>	.9,
 	"dynamic network services, inc"							=>	1,
-	"nom-iq ltd dba com laude"								=>	1,
-	"key-systems gmbh"										=>	1,
-	"rebel.com"												=>	1,
-	"1api gmbh"												=>	1,
+	"nom-iq ltd dba com laude"								=>	.9,
+	"key-systems gmbh"										=>	.9,
+	"rebel.com"												=>	.9,
+	"1api gmbh"												=>	.9,
 	"domain.com, llc"										=>	1,
 	"ascio technologies, inc"								=>	.9,
 	"tlds llc. d/b/a srsplus"								=>	.9,
-	"ovh, sas"												=>	1,
-	"namescout.com"											=>	1,
+	"ovh, sas"												=>	.9,
+	"namescout.com"											=>	.9,
 	"101domain grs ltd"										=>	1,
 	"1&1 internet se"										=>	1,
-	"dynadot llc"											=>	1,
-	"mailclub sas"											=>	1,
-	"xinnet technology corporation"							=>	1,
-	"webcc"													=>	1,
-	"domainpeople, inc."									=>	1,
-	"gabia, inc."											=>	1,
+	"dynadot llc"											=>	.9,
+	"mailclub sas"											=>	.9,
+	"xinnet technology corporation"							=>	.9,
+	"webcc"													=>	.9,
+	"domainpeople, inc."									=>	.9,
+	"gabia, inc."											=>	.9,
 	"markmonitor inc."										=>	1,
-	#HICHINA ZHICHENG TECHNOLOGY LTD.
-	"hichina zhicheng technology ltd."						=>	1,
-	#Moniker Online Services LLC
-	"moniker online services llc"							=>	1,
+	"hichina zhicheng technology ltd."						=>	.75,
+	#pair Networks, Inc.d/b/a pairNIC
+	"pair networks, inc.d/b/a pairnic"						=>	1,
+	"moniker online services llc"							=>	.9,
+	"eurodns s.a."											=>	.9,
+	"google inc."											=>	1,
+	"mesh digital limited"									=>	.9,
+	"nictc internal"										=>	.9,
+	"netestate, llc"										=>	.9,
 );
 
 open IN, "<$ARGV[0]" or die colored("Couldn't open input file ($ARGV[0]) for reading: $! \n", "bold red");
@@ -188,8 +193,8 @@ sub get_reliability_score() {
 			### FIX ME!!!  There should be a deduction for sponsoring registrar.  This means that someone outside of InterNIC is registering an InterNIC TLD.
 			print colored("  [::] Registrar in known list.  ".sprintf("%3.2f%%", ($registrars{lc($whois_obj->{'sponsoring_registrar'})} * 100))." of total so far. \n", "bold yellow");
 		} else {
-			print colored("[!!] Registrar not in list: $whois_obj->{'sponsoring_registrar'} \n", "bold yellow");
 			print Dumper($whois_obj);
+			die colored("[!!] Registrar not in list: $whois_obj->{'sponsoring_registrar'} \n", "bold red");
 		}
 	} else {
 		#print Dumper($whois_obj);
