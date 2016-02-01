@@ -8,6 +8,8 @@ use Getopt::Long;
 use Net::Whois::Parser;
 
 my ($help, $verbose, $reason);
+$verbose = 0;
+$reason = 0;
 GetOptions(
 	'h|help'		=> \$help,
 	'v|verbose+'	=> \$verbose,
@@ -75,7 +77,7 @@ while (my $domain = <IN>) {
 	#print Dumper($w);
 	my $wout = `whois $domain 2>&1`;
 	#print "$wout \n";
-	my $score = &get_reliability_score($wout, $domain);
+	my $score = &get_reliability_score($wout, $domain, $reason);
 	print colored("[>>] Domain: $domain \n", "bold green");
 	print colored("[>>] Reliability Score: $score \n", "bold green");
 	print "\n\n";
@@ -97,6 +99,7 @@ close IN or die colored("Couldn't close input file: $! \n", "bold red");
 sub get_reliability_score() {
 	my $raw_whois_text = shift(@_);
 	my $domain = lc(shift(@_));
+	my $show_reason = shift(@_);
 	my $score = 100;
 	my $whois_obj = parse_whois( raw => $raw_whois_text, domain => $domain );
 	my $assessment_country = '';
@@ -193,4 +196,16 @@ sub get_reliability_score() {
 		print colored("  [::] Registrar not defined.  -50%  \n", "bold yellow");
 	}
 	return sprintf("%-4.4f", $score);
+}
+
+sub usage() {
+	print <<EoS;
+
+$0 [-h|--help] [-v|--verbose] 
+
+-h|--help				Displays this useful message then exits
+-v|--verbose			Adds extra output that might be useful for debugging
+
+EoS
+	exit 0;
 }
