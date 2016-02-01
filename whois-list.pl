@@ -64,7 +64,6 @@ our %registrars = (
 	"gabia, inc."											=>	.9,
 	"markmonitor inc."										=>	1,
 	"hichina zhicheng technology ltd."						=>	.75,
-	#pair Networks, Inc.d/b/a pairNIC
 	"pair networks, inc.d/b/a pairnic"						=>	1,
 	"moniker online services llc"							=>	.9,
 	"eurodns s.a."											=>	.9,
@@ -72,6 +71,8 @@ our %registrars = (
 	"mesh digital limited"									=>	.9,
 	"nictc internal"										=>	.9,
 	"netestate, llc"										=>	.9,
+	#PDR Ltd. d/b/a PublicDomainRegistry.com
+	"pdr ltd. d/b/a publicdomainregistry.com"				=>	.9,
 );
 
 open IN, "<$ARGV[0]" or die colored("Couldn't open input file ($ARGV[0]) for reading: $! \n", "bold red");
