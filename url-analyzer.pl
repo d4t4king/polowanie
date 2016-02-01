@@ -10,7 +10,7 @@ use Getopt::Long;
 use MIME::Base64;
 
 my ($help, $verbose);
-
+$verbose = 0;
 GetOptions(
 	'h|help'		=>	\$help,
 	'v|verbose+'	=>	\$verbose,
