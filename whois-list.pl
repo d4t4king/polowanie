@@ -65,6 +65,8 @@ our %registrars = (
 	"markmonitor inc."										=>	1,
 	#HICHINA ZHICHENG TECHNOLOGY LTD.
 	"hichina zhicheng technology ltd."						=>	1,
+	#Moniker Online Services LLC
+	"moniker online services llc"							=>	1,
 );
 
 open IN, "<$ARGV[0]" or die colored("Couldn't open input file ($ARGV[0]) for reading: $! \n", "bold red");
