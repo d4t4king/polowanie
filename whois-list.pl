@@ -20,12 +20,13 @@ our %bad_countries = (
 	'BR'	=>	1,
 );
 our %registrars = (
-	"enom, inc."											=>	.75,
-	"godaddy, inc."											=>	1,
-	"godaddy.com, llc"										=>	1,
-	"godaddy.com, inc."										=>	1,
-	"godaddy.com, llc (146)"								=>	1,
-	"network solutions, llc."								=>	1,
+	"enom, inc."											=>	.8,
+	"godaddy, inc."											=>	1.05,
+	"godaddy.com, llc"										=>	1.05,
+	"godaddy.com, inc."										=>	1.05,
+	"godaddy.com, llc (146)"								=>	1.05,
+	"network solutions, llc."								=>	1.05,
+	"network solutions, llc"								=>	1.05,
 	"name.com, inc."										=> .85,
 	"tucows, inc."											=>	1,
 	"csc corporate domains, inc."							=>	1,
@@ -37,11 +38,35 @@ our %registrars = (
 	"webfusion limited"										=>	1,
 	"csl computer service langenbach gmbh d/b/a joker.com"	=>	.95,
 	"gandi sas"												=>	1,
+	"cloudflare, inc."										=>	1,
+	"hailclub sas"											=>	.95,
+	"dnc holdings, inc."									=>	1,
+	"gkg.net, inc."											=>	1,
+	"dynamic network services, inc"							=>	1,
+	"nom-iq ltd dba com laude"								=>	1,
+	"key-systems gmbh"										=>	1,
+	"rebel.com"												=>	1,
+	"1api gmbh"												=>	1,
+	"domain.com, llc"										=>	1,
+	"ascio technologies, inc"								=>	.9,
+	"tlds llc. d/b/a srsplus"								=>	.9,
+	"ovh, sas"												=>	1,
+	"namescout.com"											=>	1,
+	"101domain grs ltd"										=>	1,
+	"1&1 internet se"										=>	1,
+	"dynadot llc"											=>	1,
+	"mailclub sas"											=>	1,
+	"xinnet technology corporation"							=>	1,
+	"webcc"													=>	1,
+	"domainpeople, inc."									=>	1,
+	"gabia, inc."											=>	1,
+	"markmonitor inc."										=>	1,
 );
 
 open IN, "<$ARGV[0]" or die colored("Couldn't open input file ($ARGV[0]) for reading: $! \n", "bold red");
 while (my $domain = <IN>) {
 	chomp($domain);
+	$domain = lc($domain);
 	#Net::Whois is very limited.
 	#my $w = new Net::Whois::Domain $domain or die colored("Can't connect to Whois server. \n", "bold red");
 	#unless ($w->ok) { warn colored("No match for $domain \n", "bold magenta"); }
@@ -53,13 +78,14 @@ while (my $domain = <IN>) {
 	print colored("[>>] Reliability Score: $score \n", "bold green");
 	print "\n\n";
 	if ($score >= 100) {
-		open OUT, ">>cache-whitelist.txt" or die colored("Couldn't append to whitelist file: $! \n", "bold red");
+		open OUT, ">>dns-whitelist.txt" or die colored("Couldn't append to whitelist file: $! \n", "bold red");
 		print OUT "$domain\n";
 		close OUT or die colored("Couldn't close whitelist file: $! \n", "bold red");
 	}
 	print "[**] ====================================================================\n";
-	print "[**] Press ENTER to continue..... \n";
-	<STDIN>;
+	#print "[**] Press ENTER to continue..... \n";
+	#<STDIN>;
+	sleep(5);
 }
 close IN or die colored("Couldn't close input file: $! \n", "bold red");
 
@@ -79,15 +105,19 @@ sub get_reliability_score() {
 		} else {
 			# not sure what else to do here, so die
 			print Dumper($whois_obj);
-			die colored("Technical and administrative contact countries didn't match!  (T: $whois_obj->{'tech_country'} A: $whois_obj->{'admin_country'} \n", "bold red");
+			#die colored("Technical and administrative contact countries didn't match!  (T: $whois_obj->{'tech_country'} A: $whois_obj->{'admin_country'} \n", "bold red");
+			$score *= .95;
+			print colored("  [::] Tech and admin countries don't match.  -5%. \n", "bold yellow");
 		}
 	} elsif ((defined($whois_obj->{'technical_contact_country_code'})) && ($whois_obj->{'technical_contact_country_code'} ne "")) { 
 		if ($whois_obj->{'technical_contact_country_code'} eq $whois_obj->{'administrative_contact_country_code'}) {
 			$assessment_country = $whois_obj->{'technical_contact_country_code'};
 		} else {
 			# not sure what else to do here, so die
-			print Dumper($whois_obj);
-			die colored("Technical and administrative contact countries didn't match!  (T: $whois_obj->{'technical_contact_country_code'} A: $whois_obj->{'administrative_contact_country_code'} \n", "bold red");
+			#print Dumper($whois_obj);
+			#die colored("Technical and administrative contact countries didn't match!  (T: $whois_obj->{'technical_contact_country_code'} A: $whois_obj->{'administrative_contact_country_code'} \n", "bold red");
+			$score *= .95;
+			print colored("  [::] Tech and admin email domains don't match.  -5%. \n", "bold yellow");
 		}
 	} else {
 		if ((defined($whois_obj->{'terms_of_use'})) && ($whois_obj->{'terms_of_use'} ne "")) {
@@ -96,10 +126,12 @@ sub get_reliability_score() {
 				return 0;
 			}
 		} else {
-			die colored("[EE] Couldn't find expected long or short hand. \n".Dumper($whois_obj), "bold red");
+			#die colored("[EE] Couldn't find expected long or short hand. \n".Dumper($whois_obj), "bold red");
+			print colored("  [::] Not enough data to make evaluation.  Score zeroized. \n", "bold yellow");
+			return 0;
 		}
 	}
-	print colored("  [++] Country; $assessment_country \n", "bold yellow");
+	print colored("  [++] Country: $assessment_country \n", "bold yellow");
 	if (exists($bad_countries{$assessment_country})) { 
 		$score *= .5;
 		print colored("  [::] Assessment country in active countries list.  -50% \n", "bold yellow");
@@ -114,7 +146,7 @@ sub get_reliability_score() {
 			print colored("  [::] DNSSEC supported but not signed.  +25% \n", "bold yellow");
 		}
 	} else {
-		print colored("[!!] DNSSEC field not defined. \n ".Dumper($whois_obj), "yellow");
+		print colored("[!!] DNSSEC field not defined. \n", "yellow");
 	}
 	my ($tech_email_dom,$admin_email_dom);
 	if ((defined($whois_obj->{'technical_contact_email'})) && ($whois_obj->{'technical_contact_email'} ne "")) {
@@ -140,8 +172,8 @@ sub get_reliability_score() {
 			$score *= $registrars{lc($whois_obj->{'registrar'})};
 			print colored("  [::] Registrar in known list.  ".sprintf("%3.2f%%", ($registrars{lc($whois_obj->{'registrar'})} * 100))." of total so far. \n", "bold yellow");
 		} else {
-			print colored("[!!] Registrar not in list: $whois_obj->{'registrar'} \n", "bold yellow");
 			print Dumper($whois_obj);
+			die colored("[!!] Registrar not in list: $whois_obj->{'registrar'} \n", "bold red");
 		}
 	} elsif (defined($whois_obj->{'sponsoring_registrar'})) {
 		if (exists($registrars{lc($whois_obj->{'sponsoring_registrar'})})) {
@@ -153,8 +185,10 @@ sub get_reliability_score() {
 			print Dumper($whois_obj);
 		}
 	} else {
-		print Dumper($whois_obj);
-		die colored("[EE] Registrar not listed. \n", "bold red");
+		#print Dumper($whois_obj);
+		#die colored("[EE] Registrar not listed. \n", "bold red");
+		$score *= .5;
+		print colored("  [::] Registrar not defined.  -50%  \n", "bold yellow");
 	}
 	return sprintf("%-4.4f", $score);
 }

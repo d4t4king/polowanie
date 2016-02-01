@@ -9,7 +9,7 @@ use Term::ANSIColor;
 use Data::Dumper;
 use Getopt::Long;
 
-my ($help, $verbose, $depth, $threshold, $show_tlds, $whitelist, $top, $bottom);
+my ($help, $verbose, $depth, $threshold, $show_tlds, $whitelist, $top, $bottom, $dump);
 $depth = 10;
 $threshold = 0;
 $verbose = 0;
@@ -17,6 +17,7 @@ $help = 0;
 $show_tlds = 0;
 $top = 0;
 $bottom = 1;		# defaults to bottom=true
+$dump = 0;
 GetOptions(
 	"h|?|help"			=>	\$help,
 	"v|verbose+"		=>	\$verbose,
@@ -26,6 +27,7 @@ GetOptions(
 	"w|whitelist=s"		=>	\$whitelist,
 	"top"				=>	\$top,
 	"bottom"			=>	\$bottom,
+	"dump=s"			=>	\$dump,
 );
 
 my (%tlds, %ttdomains, %domains, %whitelist, %xfers);
@@ -120,6 +122,17 @@ if ((defined($ARGV[0])) && ($ARGV[0] ne "")) {
 	}
 } else {
 	die colored("[EE] You need to specify a cache log to parse as an argument! \n", "bold red");
+}
+
+if ($dump) {
+	open OUT, ">$dump" or die colored("Couldn't open dump file ($dump) for writing: $! \n", "bold red");
+	foreach my $d ( sort %ttdomains ) {
+		next if (exists($whitelist{$d}));
+		next if ($d =~ /^\d+$/);
+		print OUT "$d\n";
+	}
+	close OUT or die colored("Couldn't close dump file ($dump): $! \n", "bold red");
+	exit 0;	
 }
 
 my $i = 0;
