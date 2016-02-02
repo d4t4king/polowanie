@@ -7,13 +7,15 @@ use Data::Dumper;
 use Getopt::Long;
 use Net::Whois::Parser;
 
-my ($help, $verbose, $reason);
+my ($help, $reason, $outfile);
+our $verbose;
 $verbose = 0;
 $reason = 0;
 GetOptions(
 	'h|help'		=> \$help,
 	'v|verbose+'	=> \$verbose,
 	'r|reason'		=> \$reason,
+	'o|out=s'		=> \$outfile,
 );
 
 our %bad_countries = (
@@ -22,60 +24,76 @@ our %bad_countries = (
 	'BR'	=>	1,
 );
 our %registrars = (
-	"enom, inc."											=>	.8,
-	"godaddy, inc."											=>	1.05,
-	"godaddy.com, llc"										=>	1.05,
-	"godaddy.com, inc."										=>	1.05,
-	"godaddy.com, llc (146)"								=>	1.05,
-	"network solutions, llc."								=>	1.05,
-	"network solutions, llc"								=>	1.05,
-	"name.com, inc."										=> .85,
-	"tucows, inc."											=>	1,
-	"csc corporate domains, inc."							=>	1,
-	"markmonitor, inc."										=>	1,
-	"pairnic inc"											=>	1,
-	"safenames ltd"											=>	1,
-	"register.com, inc."									=>	1,
-	"psi-usa, inc. dba domain robot"						=>	.75,
-	"webfusion limited"										=>	1,
-	"csl computer service langenbach gmbh d/b/a joker.com"	=>	.95,
-	"gandi sas"												=>	1,
-	"cloudflare, inc."										=>	1,
-	"hailclub sas"											=>	.95,
-	"dnc holdings, inc."									=>	.9,
-	"gkg.net, inc."											=>	.9,
-	"dynamic network services, inc"							=>	1,
-	"nom-iq ltd dba com laude"								=>	.9,
-	"key-systems gmbh"										=>	.9,
-	"rebel.com"												=>	.9,
-	"1api gmbh"												=>	.9,
-	"domain.com, llc"										=>	1,
-	"ascio technologies, inc"								=>	.9,
-	"tlds llc. d/b/a srsplus"								=>	.9,
-	"ovh, sas"												=>	.9,
-	"namescout.com"											=>	.9,
-	"101domain grs ltd"										=>	1,
-	"1&1 internet se"										=>	1,
-	"dynadot llc"											=>	.9,
-	"mailclub sas"											=>	.9,
-	"xinnet technology corporation"							=>	.9,
-	"webcc"													=>	.9,
-	"domainpeople, inc."									=>	.9,
-	"gabia, inc."											=>	.9,
-	"markmonitor inc."										=>	1,
-	"hichina zhicheng technology ltd."						=>	.75,
-	"pair networks, inc.d/b/a pairnic"						=>	1,
-	"moniker online services llc"							=>	.9,
-	"eurodns s.a."											=>	.9,
-	"google inc."											=>	1,
-	"mesh digital limited"									=>	.9,
-	"nictc internal"										=>	.9,
-	"netestate, llc"										=>	.9,
-	#PDR Ltd. d/b/a PublicDomainRegistry.com
-	"pdr ltd. d/b/a publicdomainregistry.com"				=>	.9,
+	"enom, inc."												=>	.8,
+	"godaddy, inc."												=>	1.05,
+	"godaddy.com, llc"											=>	1.05,
+	"godaddy.com, inc."											=>	1.05,
+	"godaddy.com, llc (146)"									=>	1.05,
+	"network solutions, llc."									=>	1.05,
+	"network solutions, llc"									=>	1.05,
+	"name.com, inc."											=> .85,
+	"tucows, inc."												=>	1,
+	"csc corporate domains, inc."								=>	1,
+	"markmonitor, inc."											=>	1,
+	"pairnic inc"												=>	1,
+	"safenames ltd"												=>	1,
+	"register.com, inc."										=>	1,
+	"psi-usa, inc. dba domain robot"							=>	.75,
+	"webfusion limited"											=>	1,
+	"csl computer service langenbach gmbh d/b/a joker.com"		=>	.95,
+	"gandi sas"													=>	.9,
+	"gandi sas (81)"											=>	.9,
+	"cloudflare, inc."											=>	1,
+	"hailclub sas"												=>	.95,
+	"dnc holdings, inc."										=>	.9,
+	"gkg.net, inc."												=>	.9,
+	"dynamic network services, inc"								=>	1,
+	"nom-iq ltd dba com laude"									=>	.9,
+	"key-systems gmbh"											=>	.9,
+	"rebel.com"													=>	.9,
+	"1api gmbh"													=>	.9,
+	"domain.com, llc"											=>	1,
+	"ascio technologies, inc"									=>	.9,
+	"tlds llc. d/b/a srsplus"									=>	.9,
+	"ovh, sas"													=>	.9,
+	"namescout.com"												=>	.9,
+	"101domain grs ltd"											=>	1,
+	"1&1 internet se"											=>	1,
+	"dynadot llc"												=>	.9,
+	"mailclub sas"												=>	.9,
+	"xinnet technology corporation"								=>	.9,
+	"webcc"														=>	.9,
+	"domainpeople, inc."										=>	.9,
+	"gabia, inc."												=>	.9,
+	"markmonitor inc."											=>	1,
+	"hichina zhicheng technology ltd."							=>	.75,
+	"pair networks, inc.d/b/a pairnic"							=>	1,
+	"moniker online services llc"								=>	.9,
+	"eurodns s.a."												=>	.9,
+	"google inc."												=>	1,
+	"mesh digital limited"										=>	.9,
+	"nictc internal"											=>	.9,
+	"netestate, llc"											=>	.9,
+	"pdr ltd. d/b/a publicdomainregistry.com"					=>	.9,
+	"dreamhost"													=>	.8,
+	"fastdomain inc."											=>	.9,
+	"regional network information center, jsc dba ru-center"	=>	.9,
+	"core-111 (nameshield)"										=>	.9,
+	"ihs telekom, inc"											=>	.9,
+	"name.net, inc."											=>	.9,
+	"deutsche telekom ag"										=>	.9,
+	"hangang systems,inc. d/b/a doregi.com"						=>	.8,
+	"webiq domains solutions pvt. ltd. (r131-afin)"				=>	.9,
+	#easyDNS Technologies, Inc.
+	"easydns technologies, inc."								=>	.9,
+	"easydns technologies inc."									=>	.9,
+	"domainwards.com llc"										=>	.9,
+	#New Dream Network, LLC dba DreamHost Web Hosting
+	"new dream network, llc dba dreamhost web hosting"			=>	.9,
 );
 
 open IN, "<$ARGV[0]" or die colored("Couldn't open input file ($ARGV[0]) for reading: $! \n", "bold red");
+if ($outfile) { open OUT, ">$outfile" or die colored("Couldn't open output file for writing: $! \n", "bold red"); }
 while (my $domain = <IN>) {
 	chomp($domain);
 	$domain = lc($domain);
@@ -88,17 +106,18 @@ while (my $domain = <IN>) {
 	my $score = &get_reliability_score($wout, $domain, $reason);
 	print colored("[>>] Domain: $domain \n", "bold green");
 	print colored("[>>] Reliability Score: $score \n", "bold green");
-	print "\n\n";
 	if ($score >= 100) {
-		open OUT, ">>dns-whitelist.txt" or die colored("Couldn't append to whitelist file: $! \n", "bold red");
-		print OUT "$domain\n";
-		close OUT or die colored("Couldn't close whitelist file: $! \n", "bold red");
+		open WL, ">>dns-whitelist.txt" or die colored("Couldn't append to whitelist file: $! \n", "bold red");
+		print WL "$domain\n";
+		close WL or die colored("Couldn't close whitelist file: $! \n", "bold red");
 	}
 	print "[**] ====================================================================\n";
+	if ($outfile) { print OUT "$domain|$score\n"; }
 	#print "[**] Press ENTER to continue..... \n";
 	#<STDIN>;
 	sleep(5);
 }
+if ($outfile) { close OUT or die colored("Unable to close output file ($outfile): $! \n", "bold red"); }
 close IN or die colored("Couldn't close input file: $! \n", "bold red");
 
 ###############################################################################
@@ -117,10 +136,14 @@ sub get_reliability_score() {
 			$assessment_country = $whois_obj->{'tech_country'};
 		} else {
 			# not sure what else to do here, so die
-			print Dumper($whois_obj);
+			if ($reason){ 
+				if ($verbose) {
+					print Dumper($whois_obj);
+				}
+			}
 			#die colored("Technical and administrative contact countries didn't match!  (T: $whois_obj->{'tech_country'} A: $whois_obj->{'admin_country'} \n", "bold red");
 			$score *= .95;
-			print colored("  [::] Tech and admin countries don't match.  -5%. \n", "bold yellow");
+			if ($reason) { print colored("  [::] Tech and admin countries don't match.  -5%. \n", "bold yellow"); }
 		}
 	} elsif ((defined($whois_obj->{'technical_contact_country_code'})) && ($whois_obj->{'technical_contact_country_code'} ne "")) { 
 		if ($whois_obj->{'technical_contact_country_code'} eq $whois_obj->{'administrative_contact_country_code'}) {
@@ -130,36 +153,40 @@ sub get_reliability_score() {
 			#print Dumper($whois_obj);
 			#die colored("Technical and administrative contact countries didn't match!  (T: $whois_obj->{'technical_contact_country_code'} A: $whois_obj->{'administrative_contact_country_code'} \n", "bold red");
 			$score *= .95;
-			print colored("  [::] Tech and admin email domains don't match.  -5%. \n", "bold yellow");
+			if ($reason) { print colored("  [::] Tech and admin email domains don't match.  -5%. \n", "bold yellow"); }
 		}
 	} else {
 		if ((defined($whois_obj->{'terms_of_use'})) && ($whois_obj->{'terms_of_use'} ne "")) {
 			if ($whois_obj->{'terms_of_use'} =~ /You are not authorized to access or query our Whois/) {
-				print colored("[!!] Domain likely not found! ($domain) \n", "yellow");
+				if ($reason) {
+					if ($verbose) { 
+						print colored("[!!] Domain likely not found! ($domain) \n", "yellow");
+					}
+				}
 				return 0;
 			}
 		} else {
 			#die colored("[EE] Couldn't find expected long or short hand. \n".Dumper($whois_obj), "bold red");
-			print colored("  [::] Not enough data to make evaluation.  Score zeroized. \n", "bold yellow");
+			if ($reason) { print colored("  [::] Not enough data to make evaluation.  Score zeroized. \n", "bold yellow"); }
 			return 0;
 		}
 	}
-	print colored("  [++] Country: $assessment_country \n", "bold yellow");
+	if ($verbose) { print colored("  [++] Country: $assessment_country \n", "bold yellow"); }
 	if (exists($bad_countries{$assessment_country})) { 
 		$score *= .5;
-		print colored("  [::] Assessment country in active countries list.  -50% \n", "bold yellow");
+		if ($reason) { print colored("  [::] Assessment country in active countries list.  -50% \n", "bold yellow"); }
 	}
 	# Should be true or false.  'Unsigned' seems to be a valid value also.
 	if (defined($whois_obj->{'dnssec'})) {
 		if ($whois_obj->{'dnssec'} eq 'true') { 
 			$score *= 2; 
-			print colored("  [::] DNSSEC is true.  +100% \n", "bold yellow");
+			if ($reason) { print colored("  [::] DNSSEC is true.  +100% \n", "bold yellow"); }
 		} elsif ($whois_obj->{'dnssec'} eq 'Unsigned') {
 			$score *= 1.25;
-			print colored("  [::] DNSSEC supported but not signed.  +25% \n", "bold yellow");
+			if ($reason) { print colored("  [::] DNSSEC supported but not signed.  +25% \n", "bold yellow"); }
 		}
 	} else {
-		print colored("[!!] DNSSEC field not defined. \n", "yellow");
+		if ($reason) { print colored("[!!] DNSSEC field not defined. \n", "yellow"); }
 	}
 	my ($tech_email_dom,$admin_email_dom);
 	if ((defined($whois_obj->{'technical_contact_email'})) && ($whois_obj->{'technical_contact_email'} ne "")) {
@@ -169,7 +196,7 @@ sub get_reliability_score() {
 	}
 	if ($tech_email_dom ne $domain) { 
 		$score *= .9; 
-		print colored("  [::] Tech email domain ($tech_email_dom) does not equal query domain ($domain).  -10% \n", "bold yellow");
+		if ($reason) { print colored("  [::] Tech email domain ($tech_email_dom) does not equal query domain ($domain).  -10% \n", "bold yellow"); }
 	}
 	if ((defined($whois_obj->{'administrative_contact_email'})) && ($whois_obj->{'administrative_contact_email'} ne "")) {
 		$admin_email_dom = lc((split(/\@/, $whois_obj->{'administrative_contact_email'}))[1]);
@@ -178,12 +205,12 @@ sub get_reliability_score() {
 	}
 	if ($admin_email_dom ne $domain) { 
 		$score *= .9; 
-		print colored("  [::] Admin email domain ($admin_email_dom) does not equal query domain ($domain).  -10% \n", "bold yellow");
+		if ($reason) { print colored("  [::] Admin email domain ($admin_email_dom) does not equal query domain ($domain).  -10% \n", "bold yellow"); }
 	}
 	if (defined($whois_obj->{'registrar'})) {
 		if (exists($registrars{lc($whois_obj->{'registrar'})})) {
 			$score *= $registrars{lc($whois_obj->{'registrar'})};
-			print colored("  [::] Registrar in known list.  ".sprintf("%3.2f%%", ($registrars{lc($whois_obj->{'registrar'})} * 100))." of total so far. \n", "bold yellow");
+			if ($reason) { print colored("  [::] Registrar in known list.  ".sprintf("%3.2f%%", ($registrars{lc($whois_obj->{'registrar'})} * 100))." of total so far. \n", "bold yellow"); }
 		} else {
 			print Dumper($whois_obj);
 			die colored("[!!] Registrar not in list: $whois_obj->{'registrar'} \n", "bold red");
@@ -192,7 +219,7 @@ sub get_reliability_score() {
 		if (exists($registrars{lc($whois_obj->{'sponsoring_registrar'})})) {
 			$score *= $registrars{lc($whois_obj->{'sponsoring_registrar'})};
 			### FIX ME!!!  There should be a deduction for sponsoring registrar.  This means that someone outside of InterNIC is registering an InterNIC TLD.
-			print colored("  [::] Registrar in known list.  ".sprintf("%3.2f%%", ($registrars{lc($whois_obj->{'sponsoring_registrar'})} * 100))." of total so far. \n", "bold yellow");
+			if ($reason) { print colored("  [::] Registrar in known list.  ".sprintf("%3.2f%%", ($registrars{lc($whois_obj->{'sponsoring_registrar'})} * 100))." of total so far. \n", "bold yellow"); }
 		} else {
 			print Dumper($whois_obj);
 			die colored("[!!] Registrar not in list: $whois_obj->{'sponsoring_registrar'} \n", "bold red");
@@ -201,7 +228,7 @@ sub get_reliability_score() {
 		#print Dumper($whois_obj);
 		#die colored("[EE] Registrar not listed. \n", "bold red");
 		$score *= .5;
-		print colored("  [::] Registrar not defined.  -50%  \n", "bold yellow");
+		if ($reason) { print colored("  [::] Registrar not defined.  -50%  \n", "bold yellow"); }
 	}
 	return sprintf("%-4.4f", $score);
 }
@@ -213,6 +240,11 @@ $0 [-h|--help] [-v|--verbose]
 
 -h|--help				Displays this useful message then exits
 -v|--verbose			Adds extra output that might be useful for debugging
+-r|--reason				Displays the reasoning for score adjustments as 
+						adjustments are made for each domain.
+-o|--outfile			Outputs a simple report consisting of the domain
+						and its score, separated by a pipe (|).
+
 
 EoS
 	exit 0;
