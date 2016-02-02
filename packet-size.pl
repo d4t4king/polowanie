@@ -32,8 +32,9 @@ if (($tcp) && ($udp)) {
 }
 
 my $count = 0;
-my $infile = $ARGV[0] || "/var/log/messages";
-open IN, "<$infile" or die colored("Couldn't open input file ($infile) for reading: $! \n", "bold red");
+my $infile = $ARGV[0] ? $ARGV[0] : "/var/log/messages";
+print colored("Processing file: $infile \n", "bold yellow");
+open IN, "$infile" or die colored("Couldn't open input file ($infile) for reading: $! \n", "bold red");
 while (my $line = <IN>) {
 	chomp($line);
 	next unless ($line =~ /Denied-by-filter:/);
