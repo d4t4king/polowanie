@@ -2,26 +2,36 @@
 
 use strict;
 use warnings;
+use feature qw( switch );
+#no warnings "experimental::smartmatch";
 use Term::ANSIColor;
 use Data::Dumper;
 use Getopt::Long;
 use Net::Whois::Parser;
+use LWP::Simple qw( getstore );
+use LWP::UserAgent;
+use File::Find;
 
-my ($help, $reason, $outfile);
+my ($help, $reason, $outfile, $update_file);
 our $verbose;
+our @f_to_process;
 $verbose = 0;
 $reason = 0;
 GetOptions(
-	'h|help'		=> \$help,
-	'v|verbose+'	=> \$verbose,
-	'r|reason'		=> \$reason,
-	'o|out=s'		=> \$outfile,
+	'h|help'			=> \$help,
+	'v|verbose+'		=> \$verbose,
+	'r|reason'			=> \$reason,
+	'u|update-file=s'	=> \$update_file,
+	'o|out=s'			=> \$outfile,
 );
 
 our %bad_countries = (
 	'CN'	=>	1,
 	'RU'	=>	1,
 	'BR'	=>	1,
+	'KZ'	=>	1,
+	'TU'	=>	1,
+	'IR'	=>	1,
 );
 our %registrars = (
 	"enom, inc."												=>	.8,
@@ -33,6 +43,7 @@ our %registrars = (
 	"network solutions, llc"									=>	1.05,
 	"name.com, inc."											=> .85,
 	"tucows, inc."												=>	1,
+	"tucows domains inc."										=>	1,
 	"csc corporate domains, inc."								=>	1,
 	"markmonitor, inc."											=>	1,
 	"pairnic inc"												=>	1,
@@ -84,13 +95,29 @@ our %registrars = (
 	"deutsche telekom ag"										=>	.9,
 	"hangang systems,inc. d/b/a doregi.com"						=>	.8,
 	"webiq domains solutions pvt. ltd. (r131-afin)"				=>	.9,
-	#easyDNS Technologies, Inc.
 	"easydns technologies, inc."								=>	.9,
 	"easydns technologies inc."									=>	.9,
 	"domainwards.com llc"										=>	.9,
-	#New Dream Network, LLC dba DreamHost Web Hosting
 	"new dream network, llc dba dreamhost web hosting"			=>	.9,
+	"synergy wholesale"											=>	.9,
+	"tierranet inc. dba domaindiscover"							=>	.9,
+	"register.it s.p.a."										=>	.9,
+	"dotroll kft."												=>	.9,
+	"melbourne it ltd"											=>	.9,
+	"deluxe small business sales, inc. d/b/a aplus.net"			=>	.9,
+	"domaininfo ab"												=>	.9,
+	"registrygate gmbh"											=>	.9,
+	"netearth one, inc."										=>	.9,
+	#DomainSite, Inc.
+	"domainsite, inc."											=>	.9,
+	#Melbourne IT, Ltd
+	"melbourne it, ltd"											=>	.9,
 );
+
+my %shalla = &get_shalla_blacklist("/tmp");
+
+#print Dumper(%shalla);
+#exit 1;
 
 open IN, "<$ARGV[0]" or die colored("Couldn't open input file ($ARGV[0]) for reading: $! \n", "bold red");
 if ($outfile) { open OUT, ">$outfile" or die colored("Couldn't open output file for writing: $! \n", "bold red"); }
@@ -104,12 +131,18 @@ while (my $domain = <IN>) {
 	my $wout = `whois $domain 2>&1`;
 	#print "$wout \n";
 	my $score = &get_reliability_score($wout, $domain, $reason);
+	if (exists($shalla{$domain})) { 
+		$score *= .1;
+		if ($reason) { print colored("  [**] Domain in Shalla black list.  Score reduced by 90%. \n", "bold yellow"); }
+	}
 	print colored("[>>] Domain: $domain \n", "bold green");
 	print colored("[>>] Reliability Score: $score \n", "bold green");
-	if ($score >= 100) {
-		open WL, ">>dns-whitelist.txt" or die colored("Couldn't append to whitelist file: $! \n", "bold red");
-		print WL "$domain\n";
-		close WL or die colored("Couldn't close whitelist file: $! \n", "bold red");
+	if ($update_file) {
+		if ($score >= 100) {
+			open WL, ">>$update_file" or die colored("Couldn't append to whitelist file ($update_file): $! \n", "bold red");
+			print WL "$domain\n";
+			close WL or die colored("Couldn't close whitelist file: $! \n", "bold red");
+		}
 	}
 	print "[**] ====================================================================\n";
 	if ($outfile) { print OUT "$domain|$score\n"; }
@@ -244,8 +277,59 @@ $0 [-h|--help] [-v|--verbose]
 						adjustments are made for each domain.
 -o|--outfile			Outputs a simple report consisting of the domain
 						and its score, separated by a pipe (|).
+-u|--update-file		Whitelist file to update.  You should probably only
+						use this, if you know what you're doing.
 
 
 EoS
 	exit 0;
 }
+
+sub download_blacklist() {
+	my $url = shift(@_);
+	my $filename = $url;
+	$filename =~ /.*\/(.*)$/;
+	$filename = $1;
+	my $ua = LWP::UserAgent->new();
+	my $resp = $ua->get($url);
+	unless ($resp->is_success) { die colored("$resp->status_line \n", "bold red"); }
+	my $save = "/tmp/$filename";
+	getstore($url, $save);
+	my $rtv = system("tar xf $save -C /tmp/ > /dev/null 2>&1");
+	return $rtv;
+}
+
+sub get_shalla_blacklist() {
+	my $path = shift(@_);
+	# check path for 'BL\" directory
+	unless (-d "$path/BL") {
+	# unless exists
+	# 	download and extract the file
+		my $rtv = &download_blacklist("http://www.shallalist.de/Downloads/shallalist.tar.gz");
+		print STDERR colored("RTV: $rtv \n", "bold yellow");
+	# end
+	}
+	# File::Find "BL/*/domains"
+	find(\&wanted, "$path/BL");
+	my %bl_domains;
+	foreach my $file ( @f_to_process ) {
+		open IN, "<$file" or die colored("Couldn't open input file ($file) for processing: $! \n", "bold red");
+		while (my $line = <IN>) {
+			chomp($line);
+			# next if IP	(maybe do something with them later?????
+			next if ($line =~ /^\d+\.\d+\.\d+\.\d+$/);
+			# $hash{$domain}++
+			$bl_domains{$line}++;
+		}
+		close IN or die colored("There was a problem closing the input file ($file): $! \n", "bold red");
+	}
+	# return %hash
+	return %bl_domains;
+}
+
+sub wanted() {
+	if ((! -z ) && ($_ eq 'domains')) {
+		push @f_to_process, $File::Find::name;
+	}
+}
+

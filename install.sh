@@ -152,8 +152,20 @@ if [ ! $? == 0 ]; then
 	done
 fi
 cd
+perl -mURL::Encode -e ';' > /dev/null 2>&1
+if [ ! $? == 0 ]; then
+	wget http://search.cpan.org/CPAN/authors/id/B/BI/BINGOS/ExtUtils-MakeMaker-7.10.tar.gz
+	wget http://search.cpan.org/CPAN/authors/id/C/CH/CHANSEN/URL-Encode-0.03.tar.gz
+	for TB in ExtUtils-MakeMaker-7.10 URL-Encode-0.03; do
+		tar xf ${TB}.tar.gz
+		cd ${TB}
+		perl Makefile.PL
+		make && make install
+		cd ..
+	done
+fi
 
-rm -rf Digest* Net* Geo-IP* Sub* Carp* Bit* Date* Config* Mail* MIME* IO* Socket* Regexp* Test*
+rm -rf Digest* ExtUtils* Net* Geo-IP* Sub* Carp* Bit* Date* Config* Mail* MIME* IO* Socket* Regexp* Test* URL*
 
 mkdir -p /var/smoothwall/mods/polowanie
 touch /var/smoothwall/mods/polowanie/installed
