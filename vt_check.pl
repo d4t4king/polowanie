@@ -4,7 +4,9 @@ use strict;
 use warnings;
 use Term::ANSIColor;
 use Data::Dumper;
-use URI::Encode qw( url_encode url_decode );
+use URL::Encode qw( url_encode url_decode );
+use JSON;
+use LWP::Simple;
 
 open KEY, "api.key" or die colored("Couldn't open api.key for reading: $! \n", "bold red");
 my $apikey = <KEY>;
@@ -24,4 +26,10 @@ my %params = (
 
 my $json = encode_json(\%params);
 
-print Dumper($url, $json);
+#print Dumper($vt_url, $json);
+
+#my $content = get("$vt_url?$json");
+my $content = get("$vt_url?domain=$domain&apikey=$apikey");
+$content = decode_json($content);
+print Dumper($content->{'Webutation domain info'});
+
