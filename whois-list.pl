@@ -134,7 +134,10 @@ while (my $domain = <IN>) {
 	#print "$wout \n";
 	my $score = &get_reliability_score($wout, $domain, $reason);
 	# maybe not do this???????
-	next if ($score == 0);
+	if ($score == 0) {
+		print "[**] ====================================================================\n";
+		next;
+	}
 	# shalla check
 	if (exists($shalla{$domain})) { 
 		$score *= .1;
