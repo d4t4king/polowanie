@@ -8,9 +8,11 @@ use Term::ANSIColor;
 use Data::Dumper;
 use Getopt::Long;
 use Net::Whois::Parser;
-use LWP::Simple qw( getstore );
+use LWP::Simple qw( get getstore );
 use LWP::UserAgent;
 use File::Find;
+use URL::Encode qw( url_encode url_decode );
+use JSON;
 
 my ($help, $reason, $outfile, $update_file);
 our $verbose;
@@ -112,6 +114,8 @@ our %registrars = (
 	"domainsite, inc."											=>	.9,
 	#Melbourne IT, Ltd
 	"melbourne it, ltd"											=>	.9,
+	#Internet Domain Service BS Corp.
+	"internet domain service bs corp."							=>	.9,
 );
 
 my %shalla = &get_shalla_blacklist("/tmp");
@@ -124,18 +128,25 @@ if ($outfile) { open OUT, ">$outfile" or die colored("Couldn't open output file 
 while (my $domain = <IN>) {
 	chomp($domain);
 	$domain = lc($domain);
-	#Net::Whois is very limited.
-	#my $w = new Net::Whois::Domain $domain or die colored("Can't connect to Whois server. \n", "bold red");
-	#unless ($w->ok) { warn colored("No match for $domain \n", "bold magenta"); }
+	print colored("[>>] Domain: $domain \n", "bold green");
 	#print Dumper($w);
 	my $wout = `whois $domain 2>&1`;
 	#print "$wout \n";
 	my $score = &get_reliability_score($wout, $domain, $reason);
+	# maybe not do this???????
+	next if ($score == 0);
+	# shalla check
 	if (exists($shalla{$domain})) { 
 		$score *= .1;
-		if ($reason) { print colored("  [**] Domain in Shalla black list.  Score reduced by 90%. \n", "bold yellow"); }
+		if ($reason) { print colored("  [::] Domain in Shalla black list.  -90%. \n", "bold yellow"); }
 	}
-	print colored("[>>] Domain: $domain \n", "bold green");
+	# vt check
+	my $webrep = &do_vt_lookup($domain);
+	if ($webrep->{'Verdict'} eq 'safe') {
+		$score *= 1.5;
+		if ($reason) { print colored("  [::] Domain considered \"safe\" bt VirusTotal.  +50% \n", "bold yellow"); }
+	}
+	print colored("[>>] Webutation safety score: $webrep->{'Safety score'} \n", "bold green");
 	print colored("[>>] Reliability Score: $score \n", "bold green");
 	if ($update_file) {
 		if ($score >= 100) {
@@ -333,3 +344,21 @@ sub wanted() {
 	}
 }
 
+sub get_vt_apikey() {
+	unless ( -e "api.key" ) { die colored("Unable to find the api.key file for VT processing! \n", "bold red"); }
+	open KEY, "<api.key" or die colored("Can't open api.key: $! \n", "bold red");
+	my $apikey = <KEY>;
+	chomp($apikey);
+	close KEY or die colored("There was a problem closing the api.key file: $! \n", "bold red");
+	return $apikey;
+}
+
+sub do_vt_lookup() {
+	my $domain = shift(@_);
+	my $apikey = &get_vt_apikey();
+	my $vt_url = "https://www.virustotal.com/vtapi/v2/domain/report";
+	my $content = get("$vt_url?domain=$domain&apikey=$apikey");
+	$content = decode_json($content);
+	sleep(10);
+	return $content->{'Webutation domain info'};
+}
