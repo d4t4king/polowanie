@@ -37,6 +37,7 @@ our %bad_countries = (
 );
 our %registrars = (
 	"enom, inc."												=>	.8,
+	"enom, inc"													=>	.8,
 	"godaddy, inc."												=>	1.05,
 	"godaddy.com, llc"											=>	1.05,
 	"godaddy.com, inc."											=>	1.05,
@@ -116,6 +117,12 @@ our %registrars = (
 	"melbourne it, ltd"											=>	.9,
 	#Internet Domain Service BS Corp.
 	"internet domain service bs corp."							=>	.9,
+	#Amazon Registrar, Inc.
+	"amazon registrar, inc."									=>	1,
+	#UNIREGISTRAR CORP
+	"uniregistrar corp"											=>	.9,
+	#Netregistry Pty Ltd
+	"netregistry pty ltd"										=>	.9,
 );
 
 my %shalla = &get_shalla_blacklist("/tmp");
@@ -140,8 +147,8 @@ while (my $domain = <IN>) {
 	}
 	# shalla check
 	if (exists($shalla{$domain})) { 
-		$score *= .1;
-		if ($reason) { print colored("  [::] Domain in Shalla black list.  -90%. \n", "bold yellow"); }
+		$score *= .4;
+		if ($reason) { print colored("  [::] Domain in Shalla black list.  -60%. \n", "bold yellow"); }
 	}
 	# vt check
 	my $webrep = &do_vt_lookup($domain);
@@ -331,7 +338,7 @@ sub get_shalla_blacklist() {
 		while (my $line = <IN>) {
 			chomp($line);
 			# next if IP	(maybe do something with them later?????
-			next if ($line =~ /^\d+\.\d+\.\d+\.\d+$/);
+			#next if ($line =~ /^\d+\.\d+\.\d+\.\d+$/);
 			# $hash{$domain}++
 			$bl_domains{$line}++;
 		}
@@ -343,7 +350,13 @@ sub get_shalla_blacklist() {
 
 sub wanted() {
 	if ((! -z ) && ($_ eq 'domains')) {
-		push @f_to_process, $File::Find::name;
+		if ($File::Find::dir =~ /(?:anonvpn|porn|remotecontrol|sex|spyware|tracker|urlshortener|warez)$/) {
+			push @f_to_process, $File::Find::name;
+		} else {
+			if (($verbose) && ($verbose > 1)) {
+				print colored("[##] Didn't match BL: $File::Find::dir \n", "yellow");
+			}
+		}
 	}
 }
 
