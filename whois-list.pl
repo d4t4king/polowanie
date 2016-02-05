@@ -42,6 +42,8 @@ our %registrars = (
 	"godaddy.com, llc"											=>	1.05,
 	"godaddy.com, inc."											=>	1.05,
 	"godaddy.com, llc (146)"									=>	1.05,
+	#GoDaddy.com, LLC (R101-AFIN)
+	"godaddy.com, llc (r101-afin)"								=>	1.05,
 	"network solutions, llc."									=>	1.05,
 	"network solutions, llc"									=>	1.05,
 	"name.com, inc."											=> .85,
@@ -111,18 +113,18 @@ our %registrars = (
 	"domaininfo ab"												=>	.9,
 	"registrygate gmbh"											=>	.9,
 	"netearth one, inc."										=>	.9,
-	#DomainSite, Inc.
 	"domainsite, inc."											=>	.9,
-	#Melbourne IT, Ltd
 	"melbourne it, ltd"											=>	.9,
-	#Internet Domain Service BS Corp.
 	"internet domain service bs corp."							=>	.9,
-	#Amazon Registrar, Inc.
 	"amazon registrar, inc."									=>	1,
-	#UNIREGISTRAR CORP
 	"uniregistrar corp"											=>	.9,
-	#Netregistry Pty Ltd
 	"netregistry pty ltd"										=>	.9,
+	"domainadministration.com, llc"								=>	.9,
+	"us locality"												=>	.9,
+	"1 & 1 internet ag"											=>	.9,
+	"gransy s.r.o. d/b/a subreg.cz"								=>	.9,
+	#DomainTheNet.com
+	"domainthenet.com"											=>	.9,
 );
 
 my %shalla = &get_shalla_blacklist("/tmp");
@@ -152,9 +154,15 @@ while (my $domain = <IN>) {
 	}
 	# vt check
 	my $webrep = &do_vt_lookup($domain);
-	if ($webrep->{'Verdict'} eq 'safe') {
-		$score *= 1.5;
-		if ($reason) { print colored("  [::] Domain considered \"safe\" bt VirusTotal.  +50% \n", "bold yellow"); }
+	if ((defined($webrep->{'Verdict'})) && ($webrep->{'Verdict'} ne '')) {
+		if ($webrep->{'Verdict'} eq 'safe') {
+			$score *= 1.5;
+			if ($reason) { print colored("  [::] Domain considered \"safe\" by VirusTotal.  +50% \n", "bold yellow"); }
+		} else {
+			if ($verbose) { print colored("  [##] VT Verdict was something other than safe ($webrep->{'Verdict'}). \n", "cyan"); }
+		}
+	} else {
+		warn colored("[!!] Verdict field was empty! \n", "yellow");
 	}
 	print colored("[>>] Webutation safety score: $webrep->{'Safety score'} \n", "bold green");
 	print colored("[>>] Reliability Score: $score \n", "bold green");
