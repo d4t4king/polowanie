@@ -48,6 +48,8 @@ our %registrars = (
 	"network solutions, llc"									=>	1.05,
 	"name.com, inc."											=> .85,
 	"tucows, inc."												=>	1,
+	#Tucows Inc.
+	"tucows inc."												=>	1,
 	"tucows domains inc."										=>	1,
 	"csc corporate domains, inc."								=>	1,
 	"markmonitor, inc."											=>	1,
@@ -125,6 +127,18 @@ our %registrars = (
 	"gransy s.r.o. d/b/a subreg.cz"								=>	.9,
 	#DomainTheNet.com
 	"domainthenet.com"											=>	.9,
+	#CORE-95 (OLM LLC)
+	"core-95 (olm llc)"											=>	.9,
+	#Afilias (R2-AFIN)
+	"afilias (r2-afin)"											=>	.9,
+	#Communigal Communication Ltd
+	"communigal communication ltd"								=>	.9,
+	#Namespro Solutions INC.
+	"namespro solutions inc."									=>	.9,
+	#JIANGSU BANGNING SCIENCE & TECHNOLOGY CO. LTD
+	"jiangsu bangning science & technology co. ltd"				=>	.8,
+	#Registrar of domain names REG.RU LLC
+	"registrar of domain names reg.ru llc"						=>	.75,
 );
 
 my %shalla = &get_shalla_blacklist("/tmp");
