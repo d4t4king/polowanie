@@ -181,7 +181,7 @@ foreach my $t ( @sorted ) {
 sub show_help() {
 	print <<EoS;
 
-$0 [-h|--help] [-v|--verbose] [-d|--depth] <integer> [-t|--threshold] <integer> [-w|--whitelist] </path/to/whitelist> --show-tlds
+$0 [OPTIONS] /path/to/dns/log 
 
 Where:
 
@@ -193,6 +193,9 @@ Where:
 				one entry per line.
 --show-tlds			Show TLDs within specified/default depth/threshold, in addition to the
 				primary domains found.
+--top				Show the top X items rather than the bottom
+--bottom			Show the bottom X items.  This is the default.
+
 
 EoS
 
