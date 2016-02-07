@@ -159,13 +159,16 @@ $0 [-h|--help] [-v|--verbose] [-d|--depth] <integer> [-t|--threshold] <integer> 
 Where:
 
 -h|--help			Displays this helpful message.
--v|--verbose		Shows extra output messages.  Specify more times to increase verbosity.
+-v|--verbose			Shows extra output messages.  Specify more times to increase verbosity.
 -d|--depth			Specify the Top/Bottom number of results.
--t|--threshold		Specify all results above/below the specified repetition count.
--w|--whitelist		Specifies a list of accepted domains to ignore.  File should be
-					one entry per line.
+-t|--threshold			Specify all results above/below the specified repetition count.
+-w|--whitelist			Specifies a list of accepted domains to ignore.  File should be
+				one entry per line.
 --show-tlds			Show TLDs within specified/default depth/threshold, in addition to the
-					primary domains found.
+				primary domains found.
+--show-mime-types		Show the different MIME types for cached objects.
+--top				Show the top X items, rather than the bottom
+--bottom			Show the bottom X items.  This is the default.  
 
 EoS
 
