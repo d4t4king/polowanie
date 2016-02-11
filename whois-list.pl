@@ -42,13 +42,11 @@ our %registrars = (
 	"godaddy.com, llc"											=>	1.05,
 	"godaddy.com, inc."											=>	1.05,
 	"godaddy.com, llc (146)"									=>	1.05,
-	#GoDaddy.com, LLC (R101-AFIN)
 	"godaddy.com, llc (r101-afin)"								=>	1.05,
 	"network solutions, llc."									=>	1.05,
 	"network solutions, llc"									=>	1.05,
 	"name.com, inc."											=> .85,
 	"tucows, inc."												=>	1,
-	#Tucows Inc.
 	"tucows inc."												=>	1,
 	"tucows domains inc."										=>	1,
 	"csc corporate domains, inc."								=>	1,
@@ -56,6 +54,7 @@ our %registrars = (
 	"pairnic inc"												=>	1,
 	"safenames ltd"												=>	1,
 	"register.com, inc."										=>	1,
+	"register.com"												=>	1,
 	"psi-usa, inc. dba domain robot"							=>	.75,
 	"webfusion limited"											=>	1,
 	"csl computer service langenbach gmbh d/b/a joker.com"		=>	.95,
@@ -125,21 +124,38 @@ our %registrars = (
 	"us locality"												=>	.9,
 	"1 & 1 internet ag"											=>	.9,
 	"gransy s.r.o. d/b/a subreg.cz"								=>	.9,
-	#DomainTheNet.com
 	"domainthenet.com"											=>	.9,
-	#CORE-95 (OLM LLC)
 	"core-95 (olm llc)"											=>	.9,
-	#Afilias (R2-AFIN)
 	"afilias (r2-afin)"											=>	.9,
-	#Communigal Communication Ltd
 	"communigal communication ltd"								=>	.9,
-	#Namespro Solutions INC.
 	"namespro solutions inc."									=>	.9,
-	#JIANGSU BANGNING SCIENCE & TECHNOLOGY CO. LTD
 	"jiangsu bangning science & technology co. ltd"				=>	.8,
-	#Registrar of domain names REG.RU LLC
 	"registrar of domain names reg.ru llc"						=>	.75,
+	"in2net network inc."										=>	.9,
+	"ovh"														=>	.9,
+	"inic gmbh"													=>	.9,
+	"core-901 (axone/secretariat maintenance account)"			=>	.9,
+	"namesilo, llc"												=>	.9,
+	"register.it spa"											=>	.9,
+	"vautron rechenzentrum ag"									=>	.9,
+	"global village gmbh"										=>	.9,
+	"instra corporation pty ltd."								=>	.9,
+	"annulet, inc"												=>	.9,
+	"total registrations"										=>	.9,
+	"domeneshop as dba domainnameshop.com"						=>	.9,
+	#InterNetworX Ltd. & Co. KG
+	"internetworx ltd. & co. kg"								=>	.9,
+	#Ladas Domains LLC
+	"ladas domains llc"											=>	.9,
+	#Dynamic Network Services, Inc.
+	"dynamic network services, inc."							=>	.9,
+	#Omnis Network, LLC
+	"omnis network, llc"										=>	.9,
+	#TurnCommerce, Inc. DBA NameBright.com
+	"turncommerce, inc. dba namebright.com"						=>	.9,
 );
+
+if ($help) { &show_help(); }
 
 my %shalla = &get_shalla_blacklist("/tmp");
 
@@ -309,19 +325,19 @@ sub get_reliability_score() {
 	return sprintf("%-4.4f", $score);
 }
 
-sub usage() {
+sub show_help() {
 	print <<EoS;
 
-$0 [-h|--help] [-v|--verbose] 
+$0 [OPTIONS] domains-list-input.txt 
 
 -h|--help				Displays this useful message then exits
--v|--verbose			Adds extra output that might be useful for debugging
+-v|--verbose				Adds extra output that might be useful for debugging
 -r|--reason				Displays the reasoning for score adjustments as 
-						adjustments are made for each domain.
--o|--outfile			Outputs a simple report consisting of the domain
-						and its score, separated by a pipe (|).
--u|--update-file		Whitelist file to update.  You should probably only
-						use this, if you know what you're doing.
+					adjustments are made for each domain.
+-o|--outfile				Outputs a simple report consisting of the domain
+					and its score, separated by a pipe (|).
+-u|--update-file			Whitelist file to update.  You should probably only
+					use this, if you know what you're doing.
 
 
 EoS
