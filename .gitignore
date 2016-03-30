@@ -28,3 +28,4 @@ api.key
 whitelist-combined.txt
 .archive
 cache-dump.txt
+dns-dump.txt
