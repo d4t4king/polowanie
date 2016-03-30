@@ -195,6 +195,8 @@ Where:
 				primary domains found.
 --top				Show the top X items rather than the bottom
 --bottom			Show the bottom X items.  This is the default.
+--dump <filename>		Dumps unique DNS domain names (Tier-2) to the 
+					specified file./
 
 
 EoS
