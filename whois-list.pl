@@ -170,8 +170,16 @@ our %registrars = (
 	"namejolt.com llc"															=>	.9,
 	"markmonitor"																=>	.9,
 	"csl computer service langenbach gmbh d/b/a joker.com a german gmbh"		=>	.9,
-	#BigRock Solutions Ltd
 	"bigrock solutions ltd"														=>	.9,
+	"name.com, llc"																=>	.9,
+	"enom, inc (48)"															=>	.9,
+	"csc corporate domains, inc. (r63-afin)"									=>	.9,
+	"chengdu west dimension digital technology co., ltd"						=>	.9,
+	"cjsc registrar r01"														=>	.9,
+	#FABULOUS.COM PTY LTD.
+	"fabulous.com pty ltd."														=>	.9,
+	#Catalog.com, Inc.
+	"catalog.com, inc."															=>	.9,
 );
 
 if ($help) { &show_help(); }
