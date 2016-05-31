@@ -121,7 +121,7 @@ if ((defined($ARGV[0])) && ($ARGV[0] ne "")) {
 		die colored("[EE] There was a problem with the input file ($ARGV[0]): $! \n", "bold red");
 	}
 } else {
-	die colored("[EE] You need to specify a cache log to parse as an argument! \n", "bold red");
+	die colored("[EE] You need to specify a dns log to parse as an argument! \n", "bold red");
 }
 
 if ($dump) {
