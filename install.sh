@@ -1,5 +1,37 @@
 #!/bin/bash
 
+if [[ -e /etc/debian_version ]]; then
+	echo "Looks like a Debian-type system.  Trying apt-get....."
+	if [ $(id -u) != 0 ]; then
+		sudo apt-get update && 
+			sudo apt-get install libdigest-hmac-perl libnet-dns-perl libnet-nslookup-perl libgeo-ip-pureperl-perl libnet-ipv4addr-perl libdate-calc-perl libmime-lite-perl libconfig-simple-perl libnet-whois-parser-perl liburi-encode-perl -y
+	else
+		apt-get update &&
+			apt-get install libdigest-hmac-perl libnet-dns-perl libnet-nslookup-perl libdate-calc-perl libmime-lite-perl libconfig-simple-perl libnet-whois-parser-perl liburi-encode-perl -y
+	fi
+
+	cd /tmp/
+	perl -mNet::IPv4Addr -e ';' > /dev/null 2>&1
+	if [ ! $? == 0 ]; then
+		wget http://search.cpan.org/CPAN/authors/id/F/FR/FRAJULAC/Net-IPv4Addr-0.10.tar.gz
+		tar xf Net-IPv4Addr-0.10.tar.gz
+		cd Net-IPv4Addr-0.10/
+		perl Makefile.PL
+		make && make install
+	fi
+	cd /tmp/
+	perl -mGeo::IP::PurePerl -e ';' > /dev/null 2>&1
+	if [ ! $? == 0 ]; then
+		wget http://search.cpan.org/CPAN/authors/id/B/BO/BORISZ/Geo-IP-PurePerl-1.25.tar.gz
+		tar xf Geo-IP-PurePerl-1.25.tar.gz
+		cd Geo-IP-PurePerl-1.25/
+		perl Makefile.PL
+		make && make install
+	fi
+
+	exit 1
+fi
+
 echo "Installing perl modules from source, and in the required order."
 echo "If you encounter any errors or problems, and don't know what to do, post on the SWE forums, in the thread for this script."
 
