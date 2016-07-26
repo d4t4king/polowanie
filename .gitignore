@@ -20,3 +20,12 @@ nytprof.out
 /_eumm/
 *~
 *whitelist.txt
+dump-list.txt
+dns-dump-list.txt
+whois-list.out.txt
+api.key
+*whois-list.out.txt
+whitelist-combined.txt
+.archive
+cache-dump.txt
+dns-dump.txt

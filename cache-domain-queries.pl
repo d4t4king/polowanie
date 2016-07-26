@@ -6,13 +6,15 @@ use Term::ANSIColor;
 use Data::Dumper;
 use Getopt::Long;
 
-my ($help, $verbose, $depth, $threshold, $show_tlds, $whitelist, $show_mime_types);
+my ($help, $verbose, $depth, $threshold, $show_tlds, $whitelist, $show_mime_types, $top, $bottom, $dump);
 $depth = 10;
-$threshold = 10;
+$threshold = 0;
 $verbose = 0;
 $help = 0;
 $show_tlds = 0;
 $show_mime_types = 0;
+$top = 0;
+$bottom = 1;
 GetOptions(
 	"h|?|help"			=>	\$help,
 	"v|verbose+"		=>	\$verbose,
@@ -21,13 +23,22 @@ GetOptions(
 	"show-tlds"			=>	\$show_tlds,
 	"show-mime-types"	=>	\$show_mime_types,
 	"w|whitelist=s"		=>	\$whitelist,
+	"top"				=>	\$top,
+	"bottom"			=>	\$bottom,
+	"dump=s"			=>	\$dump,
 );
 
 my (%tlds, %ttdomains, %domains, %mime_types, %whitelist);
+my (@sorted);
 
 if ($help) { &show_help(); }
 
 if ($whitelist) { %whitelist = &load_whitelist($whitelist); }
+
+if ($top) { $bottom = 0; }
+#if (($top) && ($bottom)) {
+#	die colored("This tool does not (yet?) support simultaneous top and bottom reporting.  You must pic one or the other. \n", "bold red");
+#}
 
 if ((defined($ARGV[0])) && ($ARGV[0] ne "")) {
 	if (( -e $ARGV[0] ) && (! -z $ARGV[0])) {
@@ -79,10 +90,26 @@ if ((defined($ARGV[0])) && ($ARGV[0] ne "")) {
 	die colored("[EE] You need to specify a cache log to parse as an argument! \n", "bold red");
 }
 
+if ($dump) {
+	open OUT, ">$dump" or die colored("[EE] Couldn't open dump output file: $! \n", "bold red");
+	foreach my $d ( keys %ttdomains ) {
+		next if (($whitelist) && (exists($whitelist{$d})));
+		print OUT "$d\n";
+	}
+	close OUT or die colored("[EE] Couldn't close dump output file: $! \n", "bold red");
+	exit 0;
+}
+				
+	
 my $i = 0;
 if ($show_tlds) {
 	print colored("[**] Found the following unique top-level domains: \n", "bold cyan");
-	foreach my $t ( sort { $tlds{$a} <=> $tlds{$b} } keys %tlds ) {
+	if ($top) {
+		@sorted = sort { $tlds{$b} <=> $tlds{$a} } keys %tlds;
+	} else {
+		@sorted = sort { $tlds{$a} <=> $tlds{$b} } keys %tlds;
+	}
+	foreach my $t ( @sorted ) {
 		if ($threshold) { next unless ($tlds{$t} <= $threshold); }
 		printf "[**] %32s %-9d \n", $t, $tlds{$t};
 		last if (($depth) && ($i == $depth));
@@ -93,7 +120,12 @@ if ($show_tlds) {
 $i = 0;
 if ($show_mime_types) {
 	print colored("[**] Found the following unique mime types: \n", "bold cyan");
-	foreach my $mt ( sort { $mime_types{$a} <=> $mime_types{$b} } keys %mime_types ) {
+	if ($top) {
+		@sorted = sort { $mime_types{$b} <=> $mime_types{$a} } keys %mime_types;
+	} else {
+		@sorted = sort { $mime_types{$b} <=> $mime_types{$a} } keys %mime_types;
+	}
+	foreach my $mt ( @sorted ) {
 		if ($threshold) { next unless ($mime_types{$mt} <= $threshold); }
 		printf "[**] %32s %-9d \n", $mt, $mime_types{$mt};
 		last if (($depth) && ($i == $depth));
@@ -103,7 +135,12 @@ if ($show_mime_types) {
 
 $i = 0;
 print colored("[**] Found the following unique primary domains: \n", "bold cyan");
-foreach my $t ( sort { $ttdomains{$a} <=> $ttdomains{$b} } keys %ttdomains ) {
+if ($top) {
+	@sorted = sort { $ttdomains{$b} <=> $ttdomains{$a} } keys %ttdomains;
+} else {
+	@sorted = sort { $ttdomains{$a} <=> $ttdomains{$b} } keys %ttdomains;
+}
+foreach my $t ( @sorted ) {
 	if ($threshold) { next unless ($ttdomains{$t} <= $threshold); }
 	if ($whitelist) { next if (exists($whitelist{$t})); }
 	printf "[**] %32s %-9d \n", $t, $ttdomains{$t};
@@ -122,13 +159,16 @@ $0 [-h|--help] [-v|--verbose] [-d|--depth] <integer> [-t|--threshold] <integer> 
 Where:
 
 -h|--help			Displays this helpful message.
--v|--verbose		Shows extra output messages.  Specify more times to increase verbosity.
+-v|--verbose			Shows extra output messages.  Specify more times to increase verbosity.
 -d|--depth			Specify the Top/Bottom number of results.
--t|--threshold		Specify all results above/below the specified repetition count.
--w|--whitelist		Specifies a list of accepted domains to ignore.  File should be
-					one entry per line.
+-t|--threshold			Specify all results above/below the specified repetition count.
+-w|--whitelist			Specifies a list of accepted domains to ignore.  File should be
+				one entry per line.
 --show-tlds			Show TLDs within specified/default depth/threshold, in addition to the
-					primary domains found.
+				primary domains found.
+--show-mime-types		Show the different MIME types for cached objects.
+--top				Show the top X items, rather than the bottom
+--bottom			Show the bottom X items.  This is the default.  
 
 EoS
 

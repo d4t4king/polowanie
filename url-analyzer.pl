@@ -10,7 +10,7 @@ use Getopt::Long;
 use MIME::Base64;
 
 my ($help, $verbose);
-
+$verbose = 0;
 GetOptions(
 	'h|help'		=>	\$help,
 	'v|verbose+'	=>	\$verbose,
@@ -20,6 +20,7 @@ my (%mime_types, %cache_obj_requests);
 
 if ($help) { &show_help(); }
 
+# expects squid access.log as input
 if ((defined($ARGV[0])) && ($ARGV[0] ne "")) {
 	if (( -e $ARGV[0] ) && (! -z $ARGV[0])) {
 		open IN, $ARGV[0] or die colored("[EE] Couldn't open input file ($ARGV[0]): $! \n", "bold red");
