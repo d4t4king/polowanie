@@ -202,7 +202,7 @@ rm -rf Digest* ExtUtils* Net* Geo-IP* Sub* Carp* Bit* Date* Config* Mail* MIME* 
 mkdir -p /var/smoothwall/mods/polowanie
 touch /var/smoothwall/mods/polowanie/installed
 
-if [[ -e && !-z /etc/dnsmasq.conf ]]; then
+if [ -e /etc/dnsmasq.conf ] && [ ! -z /etc/dnsmasq.conf ]; then
 	echo "It looks like the custom dnsmasq config has already ben created.  Or, "
 	echo "you've done some customizations of your own.  Either way, it looks like "
 	echo "you should know whether dnsmasq is logging or not.  If you're not sure, "
