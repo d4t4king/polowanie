@@ -189,8 +189,8 @@ my %shalla = &get_shalla_blacklist("/tmp");
 #print Dumper(%shalla);
 #exit 1;
 
-open IN, "<$ARGV[0]" or die colored("Couldn't open input file ($ARGV[0]) for reading: $! \n", "bold red");
-if ($outfile) { open OUT, ">$outfile" or die colored("Couldn't open output file for writing: $! \n", "bold red"); }
+open IN, "<$ARGV[0]" or die colored("Couldn't open input file ($ARGV[0]) for reading: $!", "bold red");
+if ($outfile) { open OUT, ">$outfile" or die colored("Couldn't open output file for writing: $!", "bold red"); }
 while (my $domain = <IN>) {
 	chomp($domain);
 	$domain = lc($domain);
@@ -219,15 +219,15 @@ while (my $domain = <IN>) {
 			if ($verbose) { print colored("  [##] VT Verdict was something other than safe ($webrep->{'Verdict'}). \n", "cyan"); }
 		}
 	} else {
-		warn colored("[!!] Verdict field was empty! \n", "yellow");
+		warn colored("[!!] Verdict field was empty!", "yellow");
 	}
 	print colored("[>>] Webutation safety score: $webrep->{'Safety score'} \n", "bold green");
 	print colored("[>>] Reliability Score: $score \n", "bold green");
 	if ($update_file) {
 		if ($score >= 100) {
-			open WL, ">>$update_file" or die colored("Couldn't append to whitelist file ($update_file): $! \n", "bold red");
+			open WL, ">>$update_file" or die colored("Couldn't append to whitelist file ($update_file): $!", "bold red");
 			print WL "$domain\n";
-			close WL or die colored("Couldn't close whitelist file: $! \n", "bold red");
+			close WL or die colored("Couldn't close whitelist file: $!", "bold red");
 		}
 	}
 	print "[**] ====================================================================\n";
@@ -236,8 +236,8 @@ while (my $domain = <IN>) {
 	#<STDIN>;
 	sleep(5);
 }
-if ($outfile) { close OUT or die colored("Unable to close output file ($outfile): $! \n", "bold red"); }
-close IN or die colored("Couldn't close input file: $! \n", "bold red");
+if ($outfile) { close OUT or die colored("Unable to close output file ($outfile): $!", "bold red"); }
+close IN or die colored("Couldn't close input file: $!", "bold red");
 
 ###############################################################################
 ### Subroutines
@@ -378,7 +378,7 @@ sub download_blacklist() {
 	$filename = $1;
 	my $ua = LWP::UserAgent->new();
 	my $resp = $ua->get($url);
-	unless ($resp->is_success) { die colored("$resp->status_line \n", "bold red"); }
+	unless ($resp->is_success) { die colored("$resp->status_line", "bold red"); }
 	my $save = "/tmp/$filename";
 	getstore($url, $save);
 	my $rtv = system("tar xf $save -C /tmp/ > /dev/null 2>&1");
@@ -399,7 +399,7 @@ sub get_shalla_blacklist() {
 	find(\&wanted, "$path/BL");
 	my %bl_domains;
 	foreach my $file ( @f_to_process ) {
-		open IN, "<$file" or die colored("Couldn't open input file ($file) for processing: $! \n", "bold red");
+		open IN, "<$file" or die colored("Couldn't open input file ($file) for processing: $!", "bold red");
 		while (my $line = <IN>) {
 			chomp($line);
 			# next if IP	(maybe do something with them later?????
@@ -407,7 +407,7 @@ sub get_shalla_blacklist() {
 			# $hash{$domain}++
 			$bl_domains{$line}++;
 		}
-		close IN or die colored("There was a problem closing the input file ($file): $! \n", "bold red");
+		close IN or die colored("There was a problem closing the input file ($file): $!", "bold red");
 	}
 	# return %hash
 	return %bl_domains;
@@ -426,11 +426,11 @@ sub wanted() {
 }
 
 sub get_vt_apikey() {
-	unless ( -e "api.key" ) { die colored("Unable to find the api.key file for VT processing! \n", "bold red"); }
-	open KEY, "<api.key" or die colored("Can't open api.key: $! \n", "bold red");
+	unless ( -e "api.key" ) { die colored("Unable to find the api.key file for VT processing!", "bold red"); }
+	open KEY, "<api.key" or die colored("Can't open api.key: $!", "bold red");
 	my $apikey = <KEY>;
 	chomp($apikey);
-	close KEY or die colored("There was a problem closing the api.key file: $! \n", "bold red");
+	close KEY or die colored("There was a problem closing the api.key file: $!", "bold red");
 	return $apikey;
 }
 
