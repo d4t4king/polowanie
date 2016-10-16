@@ -176,10 +176,11 @@ our %registrars = (
 	"csc corporate domains, inc. (r63-afin)"									=>	.9,
 	"chengdu west dimension digital technology co., ltd"						=>	.9,
 	"cjsc registrar r01"														=>	.9,
-	#FABULOUS.COM PTY LTD.
 	"fabulous.com pty ltd."														=>	.9,
-	#Catalog.com, Inc.
 	"catalog.com, inc."															=>	.9,
+	'tierranet inc. d/b/a domaindiscover'										=>	.9,
+	'epik, inc.'																=>	.9,
+	'bigrock solutions ltd.'													=>	.9,
 );
 
 if ($help) { &show_help(); }
@@ -332,7 +333,7 @@ sub get_reliability_score() {
 			if ($reason) { print colored("  [::] Registrar in known list.  ".sprintf("%3.2f%%", ($registrars{lc($whois_obj->{'registrar'})} * 100))." of total so far. \n", "bold yellow"); }
 		} else {
 			print Dumper($whois_obj);
-			die colored("[!!] Registrar not in list: $whois_obj->{'registrar'} \n", "bold red");
+			die colored("[!!] Registrar not in list: |$whois_obj->{'registrar'}|", "bold red");
 		}
 	} elsif (defined($whois_obj->{'sponsoring_registrar'})) {
 		if (exists($registrars{lc($whois_obj->{'sponsoring_registrar'})})) {
@@ -341,13 +342,13 @@ sub get_reliability_score() {
 			if ($reason) { print colored("  [::] Registrar in known list.  ".sprintf("%3.2f%%", ($registrars{lc($whois_obj->{'sponsoring_registrar'})} * 100))." of total so far. \n", "bold yellow"); }
 		} else {
 			print Dumper($whois_obj);
-			die colored("[!!] Registrar not in list: $whois_obj->{'sponsoring_registrar'} \n", "bold red");
+			die colored("[!!] Registrar not in list: |$whois_obj->{'sponsoring_registrar'}|", "bold red");
 		}
 	} else {
 		#print Dumper($whois_obj);
 		#die colored("[EE] Registrar not listed. \n", "bold red");
 		$score *= .5;
-		if ($reason) { print colored("  [::] Registrar not defined.  -50%  \n", "bold yellow"); }
+		if ($reason) { print colored("  [::] Registrar not defined.  -50% ", "bold yellow"); }
 	}
 	return sprintf("%-4.4f", $score);
 }
