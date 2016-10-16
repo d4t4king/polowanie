@@ -36,10 +36,11 @@ my (@sorted);
 if ($help) { &show_help(); }
 
 if ($whitelist) { %whitelist = &load_whitelist($whitelist); }
+if ($dump eq "") { die colored("[EE] You must specify a file to dump to.", "bold red"); }
 
 if ((defined($ARGV[0])) && ($ARGV[0] ne "")) {
 	if (( -e $ARGV[0] ) && (! -z $ARGV[0])) {
-		open IN, $ARGV[0] or die "[EE] Couldn't open input file ($ARGV[0]): $! \n";
+		open IN, $ARGV[0] or die colored("[EE] Couldn't open input file ($ARGV[0]): $!", "bold red");
 		while (my $line = <IN>) {
 			chomp($line);
 			my ($mon, $day, $time, $process, $action, $domain, $client, $j1, $remote_ip, $remote_dns);
@@ -118,20 +119,20 @@ if ((defined($ARGV[0])) && ($ARGV[0] ne "")) {
 			}
 		}
 	} else {
-		die colored("[EE] There was a problem with the input file ($ARGV[0]): $! \n", "bold red");
+		die colored("[EE] There was a problem with the input file ($ARGV[0]): $!", "bold red");
 	}
 } else {
-	die colored("[EE] You need to specify a dns log to parse as an argument! \n", "bold red");
+	die colored("[EE] You need to specify a dns log to parse as an argument!", "bold red");
 }
 
 if ($dump) {
-	open OUT, ">$dump" or die colored("Couldn't open dump file ($dump) for writing: $! \n", "bold red");
+	open OUT, ">$dump" or die colored("Couldn't open dump file ($dump) for writing: $!", "bold red");
 	foreach my $d ( sort %ttdomains ) {
 		next if (exists($whitelist{$d}));
 		next if ($d =~ /^\d+$/);
 		print OUT "$d\n";
 	}
-	close OUT or die colored("Couldn't close dump file ($dump): $! \n", "bold red");
+	close OUT or die colored("Couldn't close dump file ($dump): $!", "bold red");
 	exit 0;	
 }
 
@@ -209,14 +210,14 @@ sub load_whitelist() {
 	my %wl;
 
 	if ((-e $wl) && (!-z $wl)) {
-		open WL, $wl or die colored("Couldn't open whitelist file ($wl) for processing: $! \n", "bold red");
+		open WL, $wl or die colored("Couldn't open whitelist file ($wl) for processing: $!", "bold red");
 		while (my $line = <WL>) {
 			chomp($line);
 			$wl{$line}++;
 		}
-		close WL or die colored("Coudln't close whitelist file ($wl): $! \n", "bold red");
+		close WL or die colored("Coudln't close whitelist file ($wl): $!", "bold red");
 	} else {
-		die colored("There was a problem with the whitelist file ($wl).  It does not exist or is zero bytes. \n", "bold red");
+		die colored("There was a problem with the whitelist file ($wl).  It does not exist or is zero bytes.", "bold red");
 	}
 
 	return %wl;
