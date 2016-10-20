@@ -2,6 +2,13 @@
 engines:
   fixme:
     enabled: true
+  duplication:
+    enabled: true
+    config:
+      languages:
+        - perl
 ratings:
   paths: []
-exclude_paths: []
+exclude_paths: 
+  - "*~"
+  - "api.key"
