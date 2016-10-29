@@ -35,183 +35,10 @@ our %bad_countries = (
 	'TU'	=>	1,
 	'IR'	=>	1,
 );
-our %registrars = (
-	"enom, inc."												=>	.8,
-	"enom, inc"													=>	.8,
-	"godaddy, inc."												=>	1.05,
-	"godaddy.com, llc"											=>	1.05,
-	"godaddy.com, inc."											=>	1.05,
-	"godaddy.com, llc (146)"									=>	1.05,
-	"godaddy.com, llc (r101-afin)"								=>	1.05,
-	"network solutions, llc."									=>	1.05,
-	"network solutions, llc"									=>	1.05,
-	"name.com, inc."											=> .85,
-	"tucows, inc."												=>	1,
-	"tucows inc."												=>	1,
-	"tucows domains inc."										=>	1,
-	"csc corporate domains, inc."								=>	1,
-	"markmonitor, inc."											=>	1,
-	#Mark Monitor (R84-AFIN)
-	"mark monitor (r84-afin)"									=>	1,
-	"pairnic inc"												=>	1,
-	"safenames ltd"												=>	1,
-	"register.com, inc."										=>	1,
-	"register.com"												=>	1,
-	"psi-usa, inc. dba domain robot"							=>	.75,
-	"webfusion limited"											=>	1,
-	"csl computer service langenbach gmbh d/b/a joker.com"		=>	.95,
-	"gandi sas"													=>	.9,
-	"gandi sas (81)"											=>	.9,
-	"cloudflare, inc."											=>	1,
-	"hailclub sas"												=>	.95,
-	"dnc holdings, inc."										=>	.9,
-	"gkg.net, inc."												=>	.9,
-	"dynamic network services, inc"								=>	1,
-	"nom-iq ltd dba com laude"									=>	.9,
-	"key-systems gmbh"											=>	.9,
-	"rebel.com"													=>	.9,
-	"1api gmbh"													=>	.9,
-	"domain.com, llc"											=>	1,
-	"ascio technologies, inc"									=>	.9,
-	"tlds llc. d/b/a srsplus"									=>	.9,
-	"ovh, sas"													=>	.9,
-	"namescout.com"												=>	.9,
-	"101domain grs ltd"											=>	1,
-	"1&1 internet se"											=>	1,
-	"dynadot llc"												=>	.9,
-	"mailclub sas"												=>	.9,
-	"xinnet technology corporation"								=>	.9,
-	"webcc"														=>	.9,
-	"domainpeople, inc."										=>	.9,
-	"gabia, inc."												=>	.9,
-	"markmonitor inc."											=>	1,
-	"hichina zhicheng technology ltd."							=>	.75,
-	"pair networks, inc.d/b/a pairnic"							=>	1,
-	"moniker online services llc"								=>	.9,
-	"eurodns s.a."												=>	.9,
-	"google inc."												=>	1,
-	"mesh digital limited"										=>	.9,
-	"nictc internal"											=>	.9,
-	"netestate, llc"											=>	.9,
-	"pdr ltd. d/b/a publicdomainregistry.com"					=>	.9,
-	"dreamhost"													=>	.8,
-	"fastdomain inc."											=>	.9,
-	"regional network information center, jsc dba ru-center"	=>	.9,
-	"core-111 (nameshield)"										=>	.9,
-	"ihs telekom, inc"											=>	.9,
-	"name.net, inc."											=>	.9,
-	"deutsche telekom ag"										=>	.9,
-	"hangang systems,inc. d/b/a doregi.com"										=>	.8,
-	"webiq domains solutions pvt. ltd. (r131-afin)"								=>	.9,
-	"easydns technologies, inc."												=>	.9,
-	"easydns technologies inc."													=>	.9,
-	"domainwards.com llc"														=>	.9,
-	"new dream network, llc dba dreamhost web hosting"							=>	.9,
-	"synergy wholesale"															=>	.9,
-	"tierranet inc. dba domaindiscover"											=>	.9,
-	"register.it s.p.a."														=>	.9,
-	"dotroll kft."																=>	.9,
-	"melbourne it ltd"															=>	.9,
-	"deluxe small business sales, inc. d/b/a aplus.net"							=>	.9,
-	"domaininfo ab"																=>	.9,
-	"registrygate gmbh"															=>	.9,
-	"netearth one, inc."														=>	.9,
-	"domainsite, inc."															=>	.9,
-	"melbourne it, ltd"															=>	.9,
-	"internet domain service bs corp."											=>	.9,
-	"amazon registrar, inc."													=>	1,
-	"uniregistrar corp"															=>	.9,
-	"netregistry pty ltd"														=>	.9,
-	"domainadministration.com, llc"												=>	.9,
-	"us locality"																=>	.9,
-	"1 & 1 internet ag"															=>	.9,
-	"gransy s.r.o. d/b/a subreg.cz"												=>	.9,
-	"domainthenet.com"															=>	.9,
-	"core-95 (olm llc)"															=>	.9,
-	"afilias (r2-afin)"															=>	.9,
-	"communigal communication ltd"												=>	.9,
-	"namespro solutions inc."													=>	.9,
-	"jiangsu bangning science & technology co. ltd"								=>	.8,
-	"registrar of domain names reg.ru llc"										=>	.75,
-	"in2net network inc."														=>	.9,
-	"ovh"																		=>	.9,
-	"inic gmbh"																	=>	.9,
-	"core-901 (axone/secretariat maintenance account)"							=>	.9,
-	"namesilo, llc"																=>	.9,
-	"register.it spa"															=>	.9,
-	"vautron rechenzentrum ag"													=>	.9,
-	"global village gmbh"														=>	.9,
-	"instra corporation pty ltd."												=>	.9,
-	"annulet, inc"																=>	.9,
-	"total registrations"														=>	.9,
-	"domeneshop as dba domainnameshop.com"										=>	.9,
-	"internetworx ltd. & co. kg"												=>	.9,
-	"ladas domains llc"															=>	.9,
-	"dynamic network services, inc."											=>	.9,
-	"omnis network, llc"														=>	.9,
-	"turncommerce, inc. dba namebright.com"										=>	.9,
-	"bizcn.com,inc."															=>	.9,
-	"ascio technologies, inc. danmark - filial af ascio technologies, inc. usa"	=>	.9,
-	"netearth one inc. d/b/a netearth"											=>	.9,
-	"nameking.com, inc."														=>	.9,
-	"planetdomain pty ltd"														=>	.9,
-	"united domains ag"															=> 	.9,
-	"core-53 (bestregistrar.com)"												=>	.9,
-	"vitalwerks internet solutions, llc / no-ip.com"							=>	.9,
-	"nom-iq ltd. dba com laude"													=>	.9,
-	"safebrands"																=>	.9,
-	"tiger technologies llc"													=>	.9,
-	"the name it corporation dba nameservices.net"								=>	.9,
-	"lexsynergy limited"														=>	.9,
-	"wild west domains, llc"													=>	.9,
-	"netim"																		=>	.9,
-	"netart sp. z o.o."															=>	.9,
-	"epag domainservices gmbh"													=>	.9,
-	"namejolt.com llc"															=>	.9,
-	"markmonitor"																=>	.9,
-	"csl computer service langenbach gmbh d/b/a joker.com a german gmbh"		=>	.9,
-	"bigrock solutions ltd"														=>	.9,
-	"name.com, llc"																=>	.9,
-	"enom, inc (48)"															=>	.9,
-	"csc corporate domains, inc. (r63-afin)"									=>	.9,
-	"chengdu west dimension digital technology co., ltd"						=>	.9,
-	"cjsc registrar r01"														=>	.9,
-	"fabulous.com pty ltd."														=>	.9,
-	"catalog.com, inc."															=>	.9,
-	'tierranet inc. d/b/a domaindiscover'										=>	.9,
-	'epik, inc.'																=>	.9,
-	'bigrock solutions ltd.'													=>	.9,
-	'udomainname.com llc'														=>	.9,
-	'dropcatch.com 368 llc'														=>	.9,
-	'domaincontext, inc.'														=>	.9,
-	'above.com pty ltd.'														=>	.9,
-	'launchpad, inc. (hostgator)'												=>	.9,
-	'dropcatch.com 418 llc'														=>	.9,
-	'evoplus ltd'																=>	.9,
-	'cronon ag'																	=>	.9,
-	'aim high!, inc. dba get yer name!'											=>	.75,
-	'corporate domains, inc.'													=>	.9,
-	'online sas'																=>	.9,
-	'webnames.ca inc'															=>	.9,
-	'ip mirror pte ltd'															=>	.9,
-	'ab name isp'																=>	.9,
-	'endurance domains technology pvt. ltd. (r173-afin)'						=>	.9,
-	'lcn.com ltd'																=>	.9,
-	'regtime ltd.'																=>	.9,
-	'nordnet'																	=>	.9,
-	'net-chinese co., ltd.'														=>	.9,
-	'dynamic network services'													=>	.9,
-	'dropcatch.com 375 llc'														=>	.9,
-	'tpp domain pty ltd. dbs tpp internet'										=>	.9,
-	'safenames ltd.'															=>	.9,
-	'vitalwerks internet solutions, llc dbs no-ip'								=>	.8,
-	'hosting concepts b.v. d/b/a openprovider'									=>	.8,
-	'binero ab'																	=>	.8,
-	#WILD WEST DOMAINS, INC.
-	'wild west domains, inc.'													=>	.75,
-);
 
 if ($help) { &show_help(); }
+
+my %registrars = &load_registrars;
 
 my %shalla = &get_shalla_blacklist("/tmp");
 
@@ -381,7 +208,7 @@ sub get_reliability_score() {
 	return sprintf("%-4.4f", $score);
 }
 
-sub show_help() {
+sub show_help {
 	print <<EoS;
 
 $0 [OPTIONS] domains-list-input.txt 
@@ -400,7 +227,19 @@ EoS
 	exit 0;
 }
 
-sub download_blacklist() {
+sub load_registrars {
+	my %reg;
+	open REGIN, "<.registrars.dat" or die colored("[EE] There was a problem open the registrars database file: $! ", "bold red");
+	while (my $r = <REGIN>) {
+		chomp($r);
+		my ($n,$s) = split(":", $r);
+		$reg{$n} = $s;
+	}
+	close REGIN or die colored("[EE] There was a problem closing the registrars database file: $! ", "bold red");
+	return %reg;
+}
+
+sub download_blacklist {
 	my $url = shift(@_);
 	my $filename = $url;
 	$filename =~ /.*\/(.*)$/;
@@ -414,7 +253,7 @@ sub download_blacklist() {
 	return $rtv;
 }
 
-sub get_shalla_blacklist() {
+sub get_shalla_blacklist {
 	my $path = shift(@_);
 	# check path for 'BL\" directory
 	unless (-d "$path/BL") {
@@ -442,7 +281,7 @@ sub get_shalla_blacklist() {
 	return %bl_domains;
 }
 
-sub wanted() {
+sub wanted {
 	if ((! -z ) && ($_ eq 'domains')) {
 		if ($File::Find::dir =~ /(?:anonvpn|porn|remotecontrol|sex|spyware|tracker|urlshortener|warez)$/) {
 			push @f_to_process, $File::Find::name;
@@ -454,7 +293,7 @@ sub wanted() {
 	}
 }
 
-sub get_vt_apikey() {
+sub get_vt_apikey {
 	unless ( -e "api.key" ) { die colored("Unable to find the api.key file for VT processing!", "bold red"); }
 	open KEY, "<api.key" or die colored("Can't open api.key: $!", "bold red");
 	my $apikey = <KEY>;
@@ -463,7 +302,7 @@ sub get_vt_apikey() {
 	return $apikey;
 }
 
-sub do_vt_lookup() {
+sub do_vt_lookup {
 	my $domain = shift(@_);
 	my $apikey = &get_vt_apikey();
 	my $vt_url = "https://www.virustotal.com/vtapi/v2/domain/report";
