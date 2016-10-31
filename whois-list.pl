@@ -188,7 +188,9 @@ sub get_reliability_score() {
 			if ($reason) { print colored("  [::] Registrar in known list.  ".sprintf("%3.2f%%", ($registrars{lc($whois_obj->{'registrar'})} * 100))." of total so far. \n", "bold yellow"); }
 		} else {
 			print Dumper($whois_obj);
-			die colored("[!!] Registrar not in list: |$whois_obj->{'registrar'}|", "bold red");
+			#die colored("[!!] Registrar not in list: |$whois_obj->{'registrar'}|", "bold red");
+			warn colored("[!!] Registrar not in list: |$whois_obj->{'registrar'}|", "yellow");
+			%registrars = &add_registrar(lc($whois_obj->{'registrar'}));
 		}
 	} elsif (defined($whois_obj->{'sponsoring_registrar'})) {
 		if (exists($registrars{lc($whois_obj->{'sponsoring_registrar'})})) {
@@ -197,7 +199,9 @@ sub get_reliability_score() {
 			if ($reason) { print colored("  [::] Registrar in known list.  ".sprintf("%3.2f%%", ($registrars{lc($whois_obj->{'sponsoring_registrar'})} * 100))." of total so far. \n", "bold yellow"); }
 		} else {
 			print Dumper($whois_obj);
-			die colored("[!!] Registrar not in list: |$whois_obj->{'sponsoring_registrar'}|", "bold red");
+			#die colored("[!!] Registrar not in list: |$whois_obj->{'sponsoring_registrar'}|", "bold red");
+			warn colored("[!!] Registrar not in list: |$whois_obj->{'sponsoring_registrar'}|", "yellow");
+			%registrars = &add_registrar(lc($whois_obj->{'sponsoring_registrar'}));
 		}
 	} else {
 		#print Dumper($whois_obj);
@@ -227,9 +231,17 @@ EoS
 	exit 0;
 }
 
+sub add_registrar {
+	my $reg = shift;
+	open REGOUT, ">>.registrars.dat" or die colored("[EE] There was a prblem opening the registrars database for appending: $!", "bold red");
+	print REGOUT $reg."\n";
+	close REGOUT or die colored("[EE] THere was a problem closing the registrars database after writing: $!", "bold red");
+	return &load_registrars;
+}
+
 sub load_registrars {
 	my %reg;
-	open REGIN, "<.registrars.dat" or die colored("[EE] There was a problem open the registrars database file: $! ", "bold red");
+	open REGIN, "<.registrars.dat" or die colored("[EE] There was a problem opening the registrars database file: $! ", "bold red");
 	while (my $r = <REGIN>) {
 		chomp($r);
 		my ($n,$s) = split(":", $r);

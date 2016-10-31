@@ -8,6 +8,7 @@ use Term::ANSIColor;
 use Data::Dumper;
 use Getopt::Long;
 use POSIX;
+use Date::Calc qw( Localtime );
 
 my ($help, $verbose, $tcp, $udp);
 $tcp = 0;
@@ -73,11 +74,19 @@ close IN, or die colored("Couldn't close input file ($infile): $! \n", "bold red
 
 END {
 	$time_diff = $last - $first;
+	my ($fy,$fm,$fd,$fH,$fM,$fS,$fdoy,$fdow,$fdst) = Localtime($first);
+	my ($ly,$lm,$ld,$lH,$lM,$lS,$ldoy,$ldow,$ldst) = Localtime($last);
+	my $days = int($time_diff / (24 * 60 * 60));
+	my $hours = ($time_diff / (60 * 60)) % 24;
+	my $mins = ($time_diff / 60) % 60;
+	my $secs = $time_diff % 60;
 	print colored("F: $first L: $last \n", "bold yellow");
+	print colored("F: $fm/$fd/$fy $fH:$fM:$fS L: $lm/$ld/$ly $lH:$lM:$lS \n", "bold yellow");
 	print colored("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n", "bold cyan");
 	print colored("=-\tTotal packets encountered after filter: $total_packets \n", "bold cyan");
 	print colored("=-\tBlocked Non-SYN packets: $not_syn \n", "bold cyan");
 	print colored("=-\tTime different between first and last: $time_diff secs \n", "bold cyan");
+	print colored("=-\tTime different between first and last: $days days, $hours hours, $mins mins, $secs secs \n", "bold cyan");
 	print colored("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n", "bold cyan");
 }
 
