@@ -234,7 +234,7 @@ EoS
 sub add_registrar {
 	my $reg = shift;
 	open REGOUT, ">>.registrars.dat" or die colored("[EE] There was a prblem opening the registrars database for appending: $!", "bold red");
-	print REGOUT $reg."\n";
+	print REGOUT $reg.":.9\n";
 	close REGOUT or die colored("[EE] THere was a problem closing the registrars database after writing: $!", "bold red");
 	return &load_registrars;
 }
